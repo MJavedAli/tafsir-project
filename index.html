@@ -21,11 +21,13 @@
          <p class="menu-label mb-0">Chapters</p>
          <button type="button" class="btn-close shadow-none" id="closeChapterSidebar" aria-label="Close"></button>
         </div>
-        <form class="d-flex ms-auto mt-3 mb-3 search-form">
+        <div class="sidebar-content">
+        <form class="d-flex ms-auto mt-3 mb-3 search-form" role="search">
          <span class="icon-search" aria-hidden="true"></span>
-         <input type="search" id="chapterSearch" placeholder="Find a Surah..." class="form-control mb-2 shadow-none" />
+         <input type="search" id="chapterSearch" placeholder="Find a Surah..."/>
         </form>
         <ul id="chapterList" class="menu-list list-unstyled"></ul>
+       </div>
       </aside>
       <!-- Sidebar -->
       <aside class="sidebar collapsed">

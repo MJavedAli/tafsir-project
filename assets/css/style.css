@@ -670,7 +670,21 @@ svg {
  }
  .sidebar-chapter-list {
   background: var(--color-bg-sidebar);
+  overflow: hidden auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-text-placeholder) transparent;
  } 
+ .sidebar-chapter-list.search-form {
+    border-radius: 8px;
+    min-height: 48px;
+    margin: 5px 0 20px;
+    align-items: center;
+    display: flex;
+    padding: 0 15px;
+    white-space: nowrap;
+    background: var(--color-bg-secondary);
+    transition: 0.4s ease;
+}
  .btn-outline {
   border: 1px var(--color-bg-secondary) solid !important;
   color: var(--color-bg-secondary) !important;
@@ -742,8 +756,13 @@ svg {
  .ayah-url-copy {
   color: var(--color-hover-primary) !important;
  }
-}
-
-body.dark-theme .btn-close {
+ .icon-search {
+  color: white !important;
+ }
+ .btn-close {
   filter: invert(1);
+ }
+ .search-form {
+   background: var(--color-bg-secondary);
+ }
 }
