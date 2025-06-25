@@ -226,7 +226,7 @@ document.querySelectorAll(".menu-list .menu-link").forEach(link => {
   // Fetch and render chapter list
   const chapterListEl = document.getElementById("chapterList");
   const currentChapterId = new URLSearchParams(window.location.search).get("verse");
-  fetch("data/chapter.names.txt")
+  fetch("/quran/assets/data/chapter.names.txt")
     .then(res => res.text())
     .then(text => {
       const chapterLines = text.trim().split("\n");
