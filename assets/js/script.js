@@ -172,6 +172,16 @@ if (viewParam === "tafsirs" && !authorParam) {
           <td>English</td>
         </tr>
         <tr>
+          <th scope="row">2</th>
+          <td><a href="?view=tafsirs&author=saadi&lang=ar" class="text-decoration-none">Tafsir As-Sa'di</a></td>
+          <td>Arabic</td>
+        </tr>
+        <tr>
+          <th scope="row">3</th>
+          <td><a href="?view=tafsirs&author=saadi&lang=ru" class="text-decoration-none">Tafsir As-Sa'di</a></td>
+          <td>Russian</td>
+        </tr>
+        <tr>
           <th scope="row">4</th>
           <td><a href="?view=tafsirs&author=kathir&lang=en" class="text-decoration-none">Tafsir Ibn Kathir</a></td>
           <td>English</td>
