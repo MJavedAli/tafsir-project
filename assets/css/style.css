@@ -748,3 +748,6 @@ svg {
  }
 }
 
+body.dark-theme .btn-close {
+  filter: invert(1);
+}
