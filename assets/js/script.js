@@ -168,7 +168,7 @@ if (viewParam === "tafsirs" && !authorParam) {
       <tbody>
         <tr>
           <th scope="row">1</th>
-          <td><a href="?view=tafsirs&author=saadi&lang=en" class="text-decoration-none">Tafsir As-Sa'di (On progress)</a></td>
+          <td><a href="?view=tafsirs&author=saadi&lang=en" class="text-decoration-none">Tafsir As-Sa'di</a></td>
           <td>English</td>
         </tr>
         <tr>
@@ -188,7 +188,7 @@ if (viewParam === "tafsirs" && !authorParam) {
         </tr>
       </tbody>
     </table>`;
-  document.title = "Tafsirs";
+  document.title = "Tafsir Index";
   return;
 }
 
@@ -199,6 +199,7 @@ const tafsirSources = {
   "saadi-ru": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ru" },
   "kathir-en": { type: "json", path: "/quran/assets/data/tafsirs/ibn-kathir" }
 };
+
 if (viewParam === "tafsirs" && authorParam && langParam) {
   const key = `${authorParam}-${langParam}`;
   const source = tafsirSources[key];
@@ -484,19 +485,19 @@ const results = verses.filter(v => {
     ${Object.keys(grouped).map(ch => {
       const chapterName = surahNames[ch]?.transliteration || `Surah ${ch}`;
       return `
-<div class="card border-0">
-  <div class="card-header">
-    <a class="text-decoration-none" href="?verse=${ch}">Surah ${ch}: ${chapterName}</a>
+ <div class="card border-0">
+  <div class="card-header bg-transparent border-bottom">
+    <a class="text-decoration-none chapter-name-search" href="?verse=${ch}">Surah ${ch}: ${chapterName}</a>
   </div>
   <div class="card-body">
         ${grouped[ch].map(v => `
           <div class="verse-block p-3 mb-3">
-            <div class="d-flex justify-content-start align-items-center mb-3">
-              <a href="?verse=${v.chapter}:${v.verse}" class="badge bg-success bg-opacity-75 bg-gradient text-decoration-none">${v.chapter}:${v.verse}</a>
-              <audio id="audio-${v.chapter}-${v.verse}" src="https://everyayah.com/data/Nasser_Alqatami_128kbps/${pad(v.chapter)}${pad(v.verse)}.mp3"></audio>
-              <button class="btn btn-sm rounded border-0 play icon-audio" onclick="toggleAudio('audio-${v.chapter}-${v.verse}', this)">
-              </button>
-            </div>
+    <div class="d-flex justify-content-start">
+      <a href="?verse=${v.chapter}:${v.verse}" class="btn btn-sm ayah-link bg-opacity-75 bg-gradient text-decoration-none">${v.chapter}:${v.verse}</a>
+     <audio id="audio-${v.chapter}-${v.verse}" src="https://everyayah.com/data/Nasser_Alqatami_128kbps/${pad(v.chapter)}${pad(v.verse)}.mp3"></audio>
+     <button class="btn btn-sm border-0 play icon-audio" onclick="toggleAudio('audio-${v.chapter}-${v.verse}', this)">
+     </button>
+    </div>
             <p class="mb-1 arabic" dir="rtl">
              ${highlight(v.arabic, searchQuery)}
             <button class="btn btn-sm small border-0 icon-copy"
@@ -505,7 +506,7 @@ const results = verses.filter(v => {
            </button>
             </p>
             <p class="mb-1 english">
-             <span class="badge small rounded-pill text-bg-success bg-opacity-75 bg-gradient fw-light">Hilali</span> ${highlight(v.english, searchQuery)}
+             <span class="badge small rounded-pill ayah-num bg-opacity-75 bg-gradient fw-light">Hilali</span> ${highlight(v.english, searchQuery)}
            <button class="btn btn-sm small border-0 icon-copy"
             data-copy="${v.english.replace(/"/g, '&quot;')}"
             onclick="copyTextFromData(this)">
@@ -538,12 +539,7 @@ const results = verses.filter(v => {
 const pad = n => String(n).padStart(3, '0');
 const html = rangeVerses.map(v => `
   <div class="verse-block p-3 mb-3">
-    <div class="d-flex justify-content-first align-items-center">
-      <a role="button" href="?verse=${v.chapter}:${v.verse}" class="text-decoration-none ayah-link">${v.chapter}:${v.verse}</a>
-      <audio id="audio-${v.chapter}-${v.verse}" src="https://everyayah.com/data/Nasser_Alqatami_128kbps/${pad(v.chapter)}${pad(v.verse)}.mp3"></audio>
-      <button class="btn btn-sm rounded play border-0 icon-audio" onclick="toggleAudio('audio-${v.chapter}-${v.verse}', this)">
-      </button>
-    </div>
+    <p><a role="button" href="?verse=${v.chapter}:${v.verse}" class="text-decoration-none btn btn-sm ayah-link">${v.chapter}:${v.verse}</a></p>
     <p class="mb-1 arabic" dir="rtl">
       ${v.arabic}
       <button class="btn btn-sm small border-0 icon-copy"
@@ -558,6 +554,14 @@ const html = rangeVerses.map(v => `
         onclick="copyTextFromData(this)">
       </button>
     </p>
+    <div class="btn-group mt-3 mb-3">
+     <audio id="audio-${v.chapter}-${v.verse}" src="https://everyayah.com/data/Nasser_Alqatami_128kbps/${pad(v.chapter)}${pad(v.verse)}.mp3"></audio>
+     <button class="btn btn-sm border-0 play icon-audio" onclick="toggleAudio('audio-${v.chapter}-${v.verse}', this)">
+     </button>
+     <button class="btn btn-sm small border-0 icon-copy" data-copy="${location.href}" onclick="copyTextFromData(this)">
+      <span class="ayah-url-copy">Ayah URL</span>
+     </button>
+    </div>
   </div>
 `).join("");
 
@@ -608,9 +612,7 @@ if (verseId) {
         <div class="card-body">
           <h3 class="surah-name-arabic me-2 text-center fs-1">surah${String(verse.chapter).padStart(3, '0')}</h3>
           <h3 class="text-center">${name.transliteration} (${name.english})</h3>
-          <div class="d-flex justify-content-start align-items-center mb-2">
-           <h5>Surah ${name.transliteration} ${verse.chapter}:${verse.verse}</h5>
-          </div>
+          <p><a role="button" href="?verse=${verse.chapter}:${verse.verse}" class="text-decoration-none btn btn-sm ayah-link">${verse.chapter}:${verse.verse}</a></p>
           <p class="mb-1 arabic" dir="rtl">${verse.arabic}
             <button class="btn btn-sm small border-0 icon-copy"
             data-copy="${verse.arabic.replace(/"/g, '&quot;')}"
@@ -699,9 +701,7 @@ ${verse.tafsir && verse.tafsir !== "(No tafsir available)" ? `
   return `
     <div class="verse-block p-0 mb-0 mt-3">
       ${basmalahHTML} 
-       <div class="btn-group btn-sm" role="group">
-        <a role="button" href="?verse=${v.chapter}:${v.verse}" class="text-decoration-none btn btn-sm ayah-link">${v.chapter}:${v.verse}</a>
-      </div>
+      <p><a role="button" href="?verse=${v.chapter}:${v.verse}" class="text-decoration-none btn btn-sm ayah-link">${v.chapter}:${v.verse}</a></p>
       <p class="mb-3 arabic" dir="rtl">${v.arabic}
            <button class="btn btn-sm small border-0 icon-copy"
             data-copy="${v.arabic.replace(/"/g, '&quot;')}"
@@ -709,7 +709,7 @@ ${verse.tafsir && verse.tafsir !== "(No tafsir available)" ? `
            </button>
       </p>
       <p class="mb-1 english mt-3">
-        <span class="badge small rounded-pill text-bg-success bg-opacity-75 bg-gradient fw-light">Hilali</span> ${v.english}
+        <span class="badge small rounded-pill ayah-num bg-opacity-75 bg-gradient fw-light">Hilali</span> ${v.english}
            <button class="btn btn-sm small border-0 icon-copy"
             data-copy="${v.english.replace(/"/g, '&quot;')}"
             onclick="copyTextFromData(this)">
@@ -719,7 +719,6 @@ ${verse.tafsir && verse.tafsir !== "(No tafsir available)" ? `
         <audio id="audio-${v.chapter}-${v.verse}" src="https://everyayah.com/data/Nasser_Alqatami_128kbps/${pad(v.chapter)}${pad(v.verse)}.mp3"></audio>
         <button class="btn btn-sm border-0 play icon-audio"
          onclick="toggleAudio('audio-${v.chapter}-${v.verse}', this)">
-
         </button>
            <button class="btn btn-sm small border-0 icon-copy"
             data-copy="${location.href}"
@@ -727,7 +726,6 @@ ${verse.tafsir && verse.tafsir !== "(No tafsir available)" ? `
              <span class="ayah-url-copy">Ayah URL</span>
            </button>
         </div>
-
     </div>
   `;
 }).join("");
@@ -797,7 +795,6 @@ chapters.forEach(ch => {
 });
 
 document.title = "Al-Quran";
-
       }
     })
     .catch(err => {
