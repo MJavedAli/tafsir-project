@@ -168,7 +168,7 @@ if (viewParam === "tafsirs" && !authorParam) {
       <tbody>
         <tr>
           <th scope="row">1</th>
-          <td><a href="?view=tafsirs&author=saadi&lang=en" class="text-decoration-none">Tafsir As-Sa'di (Ongoing)</a></td>
+          <td><a href="?view=tafsirs&author=saadi&lang=en" class="text-decoration-none">Tafsir As-Sa'di (On progress)</a></td>
           <td>English</td>
         </tr>
         <tr>
