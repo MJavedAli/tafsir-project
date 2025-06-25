@@ -1,0 +1,114 @@
+1|Al-Fatihah|The Opening|Meccan|الفاتحة
+2|Al-Baqarah|The Cow|Medinan|البقرة
+3|Aal Imran|The Family of Imran|Medinan|آل عمران
+4|An-Nisa’|The Women|Medinan|النساء
+5|Al-Ma’idah|The Table Spread|Medinan|المائدة
+6|Al-An’am|The Cattle|Meccan|الأنعام
+7|Al-A’raf|The Heights|Meccan|الأعراف
+8|Al-Anfal|The Spoils of War|Medinan|الأنفال
+9|At-Tawbah|The Repentance|Medinan|التوبة
+10|Yunus|Jonah|Meccan|يونس
+11|Hud|Hud|Meccan|هود
+12|Yusuf|Joseph|Meccan|يوسف
+13|Ar-Ra’d|The Thunder|Medinan|الرعد
+14|Ibrahim|Abraham|Meccan|ابراهيم
+15|Al-Hijr|The Rocky Tract|Meccan|الحجر
+16|An-Nahl|The Bee|Meccan|النحل
+17|Al-Isra’|The Night Journey|الإسراء
+18|Al-Kahf|The Cave|Meccan|الكهف
+19|Maryam|Mary|Meccan|مريم
+20|Ta-Ha|Ta-Ha|Meccan|طه
+21|Al-Anbiya’|The Prophets|Meccan|الأنبياء
+22|Al-Hajj|The Pilgrimage|Medinan|الحج
+23|Al-Mu’minun|The Believers|Meccan|المؤمنون
+24|An-Nur|The Light|Medinan|النور
+25|Al-Furqan|The Criterion|Meccan|الفرقان
+26|Ash-Shu’ara’|The Poets|Meccan|الشعراء
+27|An-Naml|The Ant|Meccan|النمل
+28|Al-Qasas|The Stories|Meccan|القصص
+29|Al-‘Ankabut|The Spider|Meccan|العنكبوت
+30|Ar-Rum|The Romans|Meccan|الروم
+31|Luqman|Luqman|Meccan|لقمان
+32|As-Sajdah|The Prostration|Meccan|السجدة
+33|Al-Ahzab|The Combined Forces|Medinan|الأحزاب
+34|Saba’|Sheba|Meccan|سبإ
+35|Fatir|The Originator|Meccan|فاطر
+36|Ya-Sin|Ya-Sin|Meccan|يس
+37|As-Saffat|Those Who Set The Ranks|Meccan|الصافات
+38|Sad|The Letter Sad|Meccan|ص
+39|Az-Zumar|The Groups|Meccan|الزمر
+40|Ghafir|The Forgiver|Meccan|غافر
+41|Fussilat|Explained in Detail|Meccan|فصلت
+42|Ash-Shura|The Consultation|Meccan|الشورى
+43|Az-Zukhruf|The Gold Adornments|Meccan|الزخرف
+44|Ad-Dukhan|The Smoke|Meccan|الدخان
+45|Al-Jathiyah|The Crouching|Meccan|الجاثية
+46|Al-Ahqaf|The Wind-Curved Sandhills|Meccan|الأحقاف
+47|Muhammad|Muhammad|Medinan|محمد
+48|Al-Fath|The Victory|Medinan|الفتح
+49|Al-Hujurat|The Rooms|Medinan|الحجرات
+50|Qaf|The Letter Qaf|Meccan|ق|Mufassal
+51|Adh-Dhariyat|The Winnowing Winds|Meccan|الذاريات|Mufassal
+52|At-Tur|The Mount|Meccan|الطور|Mufassal
+53|An-Najm|The Star|Meccan|النجم|Mufassal
+54|Al-Qamar|The Moon|Meccan|القمر|Mufassal
+55|Ar-Rahman|The Beneficent|Medinan|الرحمن|Mufassal
+56|Al-Waqi’ah|The Inevitable|Meccan|الواقعة|Mufassal
+57|Al-Hadid|The Iron|Medinan|الحديد|Mufassal
+58|Al-Mujadila|The Pleading Woman|Medinan|المجادلة|Mufassal
+59|Al-Hashr|The Exile|Medinan|الحشر|Mufassal
+60|Al-Mumtahanah|She That is to be examined|Medinan|الممتحنة|Mufassal
+61|As-Saff|The Ranks|Medinan|الصف|Mufassal
+62|Al-Jumu’ah|The Congregation|Medinan|الجمعة|Mufassal
+63|Al-Munafiqun|The Hypocrites|Medinan|المنافقون|Mufassal
+64|At-Taghabun|The Mutual Disillusion|Medinan|التغابن|Mufassal
+65|At-Talaq|The Divorce|Medinan|الطلاق|Mufassal
+66|At-Tahrim|The Prohibition|Medinan|التحريم|Mufassal
+67|Al-Mulk|The Sovereignty|Meccan|الملك|Mufassal
+68|Al-Qalam|The Pen|Meccan|القلم|Mufassal
+69|Al-Haqqah|The Reality|Meccan|الحاقة|Mufassal
+70|Al-Ma’arij|The Ascending Stairways|Meccan|المعارج|Mufassal
+71|Nuh|Noah|Meccan|نوح|Mufassal
+72|Al-Jinn|The Jinn|Meccan|الجن|Mufassal
+73|Al-Muzzammil|The Enshrouded One|Meccan|المزمل|Mufassal
+74|Al-Muddaththir|The Cloaked One|Meccan|المدثر|Mufassal
+75|Al-Qiyamah|The Resurrection|Meccan|القيامة|Mufassal
+76|Al-Insan|Man|Medinan|الانسان|Mufassal
+77|Al-Mursalat|The Emissaries|Meccan|المرسلات|Mufassal
+78|An-Naba’|The Tidings|Meccan|النبإ|Mufassal
+79|An-Nazi’at|Those who drag forth|Meccan|النازعات|Mufassal
+80|Abasa|He Frowned|Meccan|عبس|Mufassal
+81|At-Takwir|The Overthrowing|Meccan|التكوير|Mufassal
+82|Al-Infitar|The Cleaving|Meccan|الإنفطار|Mufassal
+83|Al-Mutaffifin|Defrauding|Meccan|المطففين|Mufassal
+84|Al-Inshiqaq|The Splitting Open|Meccan|الإنشقاق|Mufassal
+85|Al-Buruj|The Mansions of the Stars|Meccan|البروج|Mufassal
+86|At-Tariq|The Morning Star|Meccan|الطارق|Mufassal
+87|Al-A’la|The Most High|Meccan|الأعلى|Mufassal
+88|Al-Ghashiyah|The Overwhelming|Meccan|الغاشية|Mufassal
+89|Al-Fajr|The Dawn|Meccan|الفجر|Mufassal
+90|Al-Balad|The City|Meccan|البلد|Mufassal
+91|Ash-Shams|The Sun|Meccan|الشمس|Mufassal
+92|Al-Layl|The Night|Meccan|الليل|Mufassal
+93|Ad-Duhaa|The Morning Hours|Meccan|الضحى|Mufassal
+94|Ash-Sharh|The Relief|Meccan|الشرح|Mufassal
+95|At-Tin|The Fig|Meccan|التين|Mufassal
+96|Al-‘Alaq|The Clot|Meccan|العلق|Mufassal
+97|Al-Qadr|The Power|Meccan|القدر|Mufassal
+98|Al-Bayyinah|The Clear Proof|Medinan|البينة|Mufassal
+99|Az-Zalzalah|The Earthquake|Medinan|الزلزلة|Mufassal
+100|Al-‘Adiyat|The Courser|Meccan|العاديات|Mufassal
+101|Al-Qari’ah|The Calamity|Meccan|القارعة|Mufassal
+102|At-Takathur|The Rivalry in world increase|Meccan|التكاثر|Mufassal
+103|Al-‘Asr|The Declining Day|Meccan|العصر|Mufassal
+104|Al-Humazah|The Traducer|Meccan|الهمزة|Mufassal
+105|Al-Fil|The Elephant|Meccan|الفيل|Mufassal
+106|Quraysh|Quraysh|Meccan|قريش|Mufassal
+107|Al-Ma’un|The Small Kindnesses|Meccan|الماعون|Mufassal
+108|Al-Kawthar|Abundance|Meccan|الكوثر|Mufassal
+109|Al-Kafirun|The Disbelievers|Meccan|الكافرون|Mufassal
+110|An-Nasr|Divine Support|Medinan|النصر|Mufassal
+111|Al-Masad|The Palm Fiber|Meccan|المسد|Mufassal
+112|Al-Ikhlas|Sincerity|Meccan|الإخلاص|Mufassal
+113|Al-Falaq|The Daybreak|Meccan|الفلق|Mufassal
+114|An-Nas|Mankind|Meccan|الناس|Mufassal
