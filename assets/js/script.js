@@ -493,7 +493,7 @@ const results = verses.filter(v => {
           <div class="verse-block p-3 mb-3">
             <div class="d-flex justify-content-start align-items-center mb-3">
               <a href="?verse=${v.chapter}:${v.verse}" class="badge bg-success bg-opacity-75 bg-gradient text-decoration-none">${v.chapter}:${v.verse}</a>
-              <audio id="audio-${v.chapter}-${v.verse}" src="https://everyayah.com/data/Abdurrahmaan_As-Sudais_192kbps/${pad(v.chapter)}${pad(v.verse)}.mp3"></audio>
+              <audio id="audio-${v.chapter}-${v.verse}" src="https://everyayah.com/data/Nasser_Alqatami_128kbps/${pad(v.chapter)}${pad(v.verse)}.mp3"></audio>
               <button class="btn btn-sm rounded border-0 play icon-audio" onclick="toggleAudio('audio-${v.chapter}-${v.verse}', this)">
               </button>
             </div>
@@ -540,7 +540,7 @@ const html = rangeVerses.map(v => `
   <div class="verse-block p-3 mb-3">
     <div class="d-flex justify-content-first align-items-center">
       <a role="button" href="?verse=${v.chapter}:${v.verse}" class="text-decoration-none ayah-link">${v.chapter}:${v.verse}</a>
-      <audio id="audio-${v.chapter}-${v.verse}" src="https://everyayah.com/data/Abdurrahmaan_As-Sudais_192kbps/${pad(v.chapter)}${pad(v.verse)}.mp3"></audio>
+      <audio id="audio-${v.chapter}-${v.verse}" src="https://everyayah.com/data/Nasser_Alqatami_128kbps/${pad(v.chapter)}${pad(v.verse)}.mp3"></audio>
       <button class="btn btn-sm rounded play border-0 icon-audio" onclick="toggleAudio('audio-${v.chapter}-${v.verse}', this)">
       </button>
     </div>
@@ -597,7 +597,7 @@ if (verseId) {
 
   if (verse) {
     const pad = (n) => String(n).padStart(3, '0');
-    const audioURL = `https://everyayah.com/data/Abdurrahmaan_As-Sudais_192kbps/${pad(verse.chapter)}${pad(verse.verse)}.mp3`;
+    const audioURL = `https://everyayah.com/data/Nasser_Alqatami_128kbps/${pad(verse.chapter)}${pad(verse.verse)}.mp3`;
     const prev = verses.find(v => v.chapter === chapterId && v.verse === verseId - 1);
     const next = verses.find(v => v.chapter === chapterId && v.verse === verseId + 1);
     const name = surahNames[chapterId] || { transliteration: "", arabic: "" };
@@ -689,7 +689,7 @@ ${verse.tafsir && verse.tafsir !== "(No tafsir available)" ? `
           const paginatedVerses = chapterVerses.slice((pageParam - 1) * perPage, pageParam * perPage);
           const chapterHtml = paginatedVerses.map(v => {
           const pad = (n) => String(n).padStart(3, '0');
-          const audioURL = `https://everyayah.com/data/Abdurrahmaan_As-Sudais_192kbps/${pad(v.chapter)}${pad(v.verse)}.mp3`;
+          const audioURL = `https://everyayah.com/data/Nasser_Alqatami_128kbps/${pad(v.chapter)}${pad(v.verse)}.mp3`;
 
   let basmalahHTML = "";
   if (v.basmalah && v.basmalah.trim() !== "") {
@@ -716,7 +716,7 @@ ${verse.tafsir && verse.tafsir !== "(No tafsir available)" ? `
            </button>
       </p>
         <div class="btn-group mt-3 mb-3">
-        <audio id="audio-${v.chapter}-${v.verse}" src="https://everyayah.com/data/Abdurrahmaan_As-Sudais_192kbps/${pad(v.chapter)}${pad(v.verse)}.mp3"></audio>
+        <audio id="audio-${v.chapter}-${v.verse}" src="https://everyayah.com/data/Nasser_Alqatami_128kbps/${pad(v.chapter)}${pad(v.verse)}.mp3"></audio>
         <button class="btn btn-sm border-0 play icon-audio"
          onclick="toggleAudio('audio-${v.chapter}-${v.verse}', this)">
 
