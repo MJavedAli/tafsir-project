@@ -671,10 +671,6 @@ svg {
  .sidebar-chapter-list {
   background: var(--color-bg-sidebar);
  } 
- .btn-close {
-  fill: var(--color-white) !important;
-  background: var(--color-bg-secondary) !important;
- }
  .btn-outline {
   border: 1px var(--color-bg-secondary) solid !important;
   color: var(--color-bg-secondary) !important;
