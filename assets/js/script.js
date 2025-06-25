@@ -23,12 +23,12 @@ function normalizeArabic(str) {
   const viewParam = urlParams.get("view");
   const searchQuery = urlParams.get("q")?.toLowerCase();
   const content = document.getElementById("content");
-  const arabicURL = `/data/quran.txt?v=${Date.now()}`;
-  const englishURL = "/data/en.hilali.txt";
-  const surahNamesURL = "/data/chapter.names.txt";
-  const tafsirURL = `/data/tafsir.saadi.txt?v=${Date.now()}`;
-  const saadiURL = "/data/saadi.translation.txt";
-  const quranSimpleURL = `/data/quran-simple-clean.txt?v=${Date.now()}`;
+  const arabicURL = `/quran/data/quran.txt?v=${Date.now()}`;
+  const englishURL = "quran/data/en.hilali.txt";
+  const surahNamesURL = "/quran//data/chapter.names.txt";
+  const tafsirURL = `/quran/data/tafsir.saadi.txt?v=${Date.now()}`;
+  const saadiURL = "/quran/data/saadi.translation.txt";
+  const quranSimpleURL = `/quran/data/quran-simple-clean.txt?v=${Date.now()}`;
 
   if (searchQuery) {
     document.getElementById("searchInput").value = searchQuery;
