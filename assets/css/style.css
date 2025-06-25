@@ -1,14 +1,14 @@
 @font-face {
   font-family: 'surah-name-v2-icon';
-  src: url('/fonts/surah-name-v2.woff2') format('woff2'),
-       url('/fonts/surah-name-v2.woff') format('woff'),
-       url('/fonts/surah-name-v2.ttf') format('truetype');
+  src: url('/quran/assets/fonts/surah-name-v2.woff2') format('woff2'),
+       url('/quran/assets/fonts/surah-name-v2.woff') format('woff'),
+       url('/quran/assets/fonts/surah-name-v2.ttf') format('truetype');
   font-display: swap;
 }
 @font-face {
   font-family: 'qpc-nastaleeq';
-  src: url('/fonts/KFGQPCNastaleeq-Regular.woff2') format('woff2'),
-       url('/font/KFGQPCNastaleeq-Regular.ttf') format('truetype');
+  src: url('/quran/assets/fonts/KFGQPCNastaleeq-Regular.woff2') format('woff2'),
+       url('/quran/assets/font/KFGQPCNastaleeq-Regular.ttf') format('truetype');
   font-display: swap;
 }
 
