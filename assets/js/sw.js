@@ -5,7 +5,6 @@ const ASSETS_TO_CACHE = [
   '/quran/',
   '/quran/index.html',
   '/quran/manifest.json',
-  '/quran/assets/js/sw.js',
   '/quran/assets/css/style.css',
   '/quran/assets/js/script.js',
   '/quran/data/quran.txt',
