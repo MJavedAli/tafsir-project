@@ -247,6 +247,72 @@ if (viewParam === "juz" && urlParams.get("juz")) {
   return;
 }
 
+if (viewParam === "topics") {
+  const currentPage = parseInt(urlParams.get("page")) || 1;
+  const pageSize = 30;
+
+  fetch("/quran/assets/data/topics.txt")
+    .then(res => res.text())
+    .then(text => {
+      const lines = text.trim().split("\n");
+      const total = lines.length;
+      const totalPages = Math.ceil(total / pageSize);
+
+      const start = (currentPage - 1) * pageSize;
+      const paginated = lines.slice(start, start + pageSize);
+
+      content.innerHTML = `
+        <h4 class="mb-4">Topics</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 60%">Topic</th>
+                <th style="width: 40%">Verse References</th>
+              </tr>
+            </thead>
+            <tbody id="topicsTableBody"></tbody>
+          </table>
+        </div>`;
+
+      const tableBody = document.getElementById("topicsTableBody");
+
+      paginated.forEach(line => {
+        const [topic, refs] = line.split("|");
+        if (!topic || !refs) return;
+
+        const links = refs.split(",").map(ref => {
+          const trimmed = ref.trim();
+          return `<a href="?verse=${trimmed}" class="text-decoration-none">${trimmed}</a>`;
+        }).join(", ");
+
+        tableBody.innerHTML += `
+          <tr>
+            <td>${topic}</td>
+            <td>${links}</td>
+          </tr>`;
+      });
+
+      // Pagination controls
+      content.innerHTML += `
+        <nav class="mt-4 d-flex justify-content-between align-items-center">
+          ${currentPage > 1
+            ? `<a class="btn btn-outline-primary" href="?view=topics&page=${currentPage - 1}">&laquo; Previous</a>`
+            : "<span></span>"}
+          <span>Page ${currentPage} of ${totalPages}</span>
+          ${currentPage < totalPages
+            ? `<a class="btn btn-outline-primary" href="?view=topics&page=${currentPage + 1}">Next &raquo;</a>`
+            : ""}
+        </nav>`;
+    })
+    .catch(err => {
+      content.innerHTML = `<p class="text-danger">❌ Failed to load topics file.</p>`;
+      console.error(err);
+    });
+
+  return;
+}
+
 if (viewParam === "tafsirs" && authorParam && !langParam) {
   content.innerHTML = `
     <div class="alert alert-light mt-4">
