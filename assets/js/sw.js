@@ -1,5 +1,4 @@
 const CACHE_NAME = 'quran-app-v1';
-const OFFLINE_URL = '/offline.html'; // Optional fallback page
 
 const ASSETS_TO_CACHE = [
   '/quran/',
@@ -10,14 +9,19 @@ const ASSETS_TO_CACHE = [
   '/quran/data/quran.txt',
   '/quran/data/en.hilali.txt',
   '/quran/assets/icons/icon-192.png',
-  '/quran/assets/icons/icon-512.png',
-  '/quran/offline.html'
+  '/quran/assets/icons/icon-512.png'
 ];
 
 // Install: cache app shell
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS_TO_CACHE))
+    caches.open(CACHE_NAME).then(async cache => {
+      try {
+        await cache.addAll(ASSETS_TO_CACHE);
+      } catch (err) {
+        console.warn('❌ Failed to cache some files', err);
+      }
+    })
   );
   self.skipWaiting();
 });
@@ -34,17 +38,13 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Fetch: try cache first, then network, then offline fallback
+// Fetch: try cache first, then network
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
     caches.match(event.request).then(cached => {
-      return cached || fetch(event.request).catch(() => {
-        if (event.request.destination === 'document') {
-          return caches.match(OFFLINE_URL);
-        }
-      });
+      return cached || fetch(event.request);
     })
   );
 });
