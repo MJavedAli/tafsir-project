@@ -133,6 +133,120 @@ const authorTitles = {
 };
 const titleParam = authorTitles[authorParam] || "Tafsir";
 
+const juzRanges = [
+  { start: "1:1", end: "2:141" },
+  { start: "2:142", end: "2:252" },
+  { start: "2:253", end: "3:92" },
+  { start: "3:93", end: "4:23" },
+  { start: "4:24", end: "4:147" },
+  { start: "4:148", end: "5:81" },
+  { start: "5:82", end: "6:110" },
+  { start: "6:111", end: "7:87" },
+  { start: "7:88", end: "8:40" },
+  { start: "8:41", end: "9:92" },
+  { start: "9:93", end: "11:5" },
+  { start: "11:6", end: "12:52" },
+  { start: "12:53", end: "14:52" },
+  { start: "15:1", end: "16:128" },
+  { start: "17:1", end: "18:74" },
+  { start: "18:75", end: "20:135" },
+  { start: "21:1", end: "22:78" },
+  { start: "23:1", end: "25:20" },
+  { start: "25:21", end: "27:55" },
+  { start: "27:56", end: "29:45" },
+  { start: "29:46", end: "33:30" },
+  { start: "33:31", end: "36:27" },
+  { start: "36:28", end: "39:31" },
+  { start: "39:32", end: "41:46" },
+  { start: "41:47", end: "45:37" },
+  { start: "46:1", end: "51:30" },
+  { start: "51:31", end: "57:29" },
+  { start: "58:1", end: "66:12" },
+  { start: "67:1", end: "77:50" },
+  { start: "78:1", end: "114:6" }
+];
+
+if (viewParam === "juz" && !urlParams.get("juz")) {
+  content.innerHTML = `<h4 class="mb-4">📖 Juz Index</h4>`;
+  juzRanges.forEach((range, i) => {
+    content.innerHTML += `
+      <div class="mb-2">
+        <a href="?view=juz&juz=${i + 1}" class="btn btn-outline-primary w-100 text-start">
+          📘 Juz ${i + 1} (${range.start} – ${range.end})
+        </a>
+      </div>`;
+  });
+  return;
+}
+
+if (viewParam === "juz" && urlParams.get("juz")) {
+  const juzId = parseInt(urlParams.get("juz"));
+  const page = parseInt(urlParams.get("page") || 1);
+  const pageSize = 20;
+  const range = juzRanges[juzId - 1];
+  if (!range) return;
+
+  const [startSurah, startAyah] = range.start.split(":").map(Number);
+  const [endSurah, endAyah] = range.end.split(":").map(Number);
+
+  fetch("data/quran.txt")
+    .then(res => res.text())
+    .then(text => {
+      const lines = text.trim().split("\n");
+      const verses = lines.map(line => {
+        const [s, a, t] = line.split("|");
+        return { surah: parseInt(s), ayah: parseInt(a), text: t };
+      });
+
+      const filtered = verses.filter(v => {
+        const key = `${v.surah}:${v.ayah}`;
+        return (
+          (v.surah > startSurah || (v.surah === startSurah && v.ayah >= startAyah)) &&
+          (v.surah < endSurah || (v.surah === endSurah && v.ayah <= endAyah))
+        );
+      });
+
+      const totalPages = Math.ceil(filtered.length / pageSize);
+      const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
+
+      const breadcrumb = `
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="?view=juz">Juz Index</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Juz ${juzId}</li>
+          </ol>
+        </nav>`;
+
+      content.innerHTML = `
+        ${breadcrumb}
+        <h4 class="mb-4">Juz ${juzId} (${range.start} – ${range.end})</h4>`;
+
+      paginated.forEach(v => {
+        const name = surahNames[v.surah] || { transliteration: "" };
+        const translation = englishVerses.find(e => e.chapter === v.surah && e.verse === v.ayah)?.text || "";
+        content.innerHTML += `
+          <div class="mb-3 border-bottom pb-2">
+            <div class="text-muted small mb-1"><a href="?verse=${v.surah}:${v.ayah}" class="text-decoration-none">Surah ${v.surah}:${v.ayah} (${name.transliteration})</a></div>
+            <div class="fs-5 arabic">${v.text}</div>
+            <div class="english">${translation}</div>
+          </div>`;
+      });
+
+      content.innerHTML += `
+        <nav class="mt-4 d-flex justify-content-between align-items-center">
+          ${page > 1
+            ? `<a class="btn btn-outline-primary" href="?view=juz&juz=${juzId}&page=${page - 1}">&laquo; Prev</a>`
+            : "<span></span>"}
+          <span>Page ${page} of ${totalPages}</span>
+          ${page < totalPages
+            ? `<a class="btn btn-outline-primary" href="?view=juz&juz=${juzId}&page=${page + 1}">Next &raquo;</a>`
+            : ""}
+        </nav>`;
+    });
+
+  return;
+}
+
 if (viewParam === "tafsirs" && authorParam && !langParam) {
   content.innerHTML = `
     <div class="alert alert-light mt-4">
