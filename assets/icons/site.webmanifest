@@ -1,6 +1,8 @@
 {
   "name": "Al-Quran Al-Karim",
   "short_name": "Al-Quran",
+  "start_url": "/quran/",
+  "scope": "/quran/"
   "icons": [
     {
       "src": "/quran/assets/icons/icon-192.png",
