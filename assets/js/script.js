@@ -189,7 +189,7 @@ if (viewParam === "juz" && urlParams.get("juz")) {
   const [startSurah, startAyah] = range.start.split(":").map(Number);
   const [endSurah, endAyah] = range.end.split(":").map(Number);
 
-  fetch("data/quran.txt")
+  fetch("/quran/assets/data/quran.txt")
     .then(res => res.text())
     .then(text => {
       const lines = text.trim().split("\n");
