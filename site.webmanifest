@@ -2,7 +2,9 @@
   "name": "Al-Quran Al-Karim",
   "short_name": "Al-Quran",
   "start_url": "/quran/",
-  "scope": "/quran/"
+  "display": "standalone",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
   "icons": [
     {
       "src": "/quran/assets/icons/icon-192.png",
@@ -16,8 +18,5 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
-  "display": "standalone"
+  ]
 }

@@ -4,7 +4,7 @@ const OFFLINE_URL = '/offline.html'; // Optional fallback page
 const ASSETS_TO_CACHE = [
   '/quran/',
   '/quran/index.html',
-  '/quran/assets/icons/manifest.json',
+  '/quran/manifest.json',
   '/quran/assets/js/sw.js',
   '/quran/assets/css/style.css',
   '/quran/assets/js/script.js',
