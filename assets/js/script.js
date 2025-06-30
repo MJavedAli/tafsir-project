@@ -966,15 +966,30 @@ chapters.forEach(ch => {
           <small class="text-muted" style="margin-left:5px;">${name.type}</small>
           </div>
         </div>
-        <div class="ps-2 flex-shrink-0 align-self-center surah-name-arabic">surah${String(ch).padStart(3, '0')}</div>
+        <div class="ps-2 flex-shrink-0 align-self-center" id="surah-svg-${ch}"></div>
       </div>
     </a>
   </div>
   `;
   content.appendChild(col);
+  const svgContainer = col.querySelector(`#surah-svg-${ch}`);
+  fetch(`assets/svg/${ch}.svg`)
+    .then(res => {
+      if (!res.ok) throw new Error(`Failed to load SVG ${ch}`);
+      return res.text();
+    })
+    .then(svg => {
+    if (document.body.classList.contains('dark-theme')) {
+      svg = svg.replace(/fill="[^"]*"/g, 'fill="#ffffff"');
+    }
+      svgContainer.innerHTML = svg;
+    })
+    .catch(err => {
+      console.error(err);
+      svgContainer.textContent = `#${ch}`; // fallback text
+    });
 });
-
-document.title = "Al-Quran";
+  document.title = "Al-Quran";
       }
     })
     .catch(err => {
