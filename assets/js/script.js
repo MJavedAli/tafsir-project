@@ -141,7 +141,6 @@ const authorTitles = {
   saadi: "Tafsir As-Sa'di"
 };
 const titleParam = authorTitles[authorParam] || "Tafsir";
-
 const juzRanges = [
   { start: "1:1", end: "2:141" },
   { start: "2:142", end: "2:252" },
@@ -175,6 +174,7 @@ const juzRanges = [
   { start: "78:1", end: "114:6" }
 ];
 
+// === BEGIN QURANIC JUZ === //
 if (viewParam === "juz" && !urlParams.get("juz")) {
   content.innerHTML = `<h4 class="mb-4">📖 Juz Index</h4>`;
   juzRanges.forEach((range, i) => {
@@ -187,7 +187,6 @@ if (viewParam === "juz" && !urlParams.get("juz")) {
   });
   return;
 }
-
 if (viewParam === "juz" && urlParams.get("juz")) {
   const juzId = parseInt(urlParams.get("juz"));
   const page = parseInt(urlParams.get("page") || 1);
@@ -236,8 +235,14 @@ if (viewParam === "juz" && urlParams.get("juz")) {
         content.innerHTML += `
           <div class="mb-3 border-bottom pb-2">
             <div class="text-muted small mb-1"><a href="?verse=${v.surah}:${v.ayah}" class="text-decoration-none">Surah ${v.surah}:${v.ayah} (${name.transliteration})</a></div>
-            <div class="fs-5 arabic">${v.text}</div>
-            <div class="english">${translation}</div>
+            <div class="fs-5 arabic">
+             ${v.text}
+             <button class="btn btn-sm small border-0 icon-copy" data-copy="${v.text}" onclick="copyTextFromData(this)"></button>
+            </div>
+            <div class="english">
+             ${translation}
+             <button class="btn btn-sm small border-0 icon-copy" data-copy="${translation}" onclick="copyTextFromData(this)"></button>
+            </div>
           </div>`;
       });
 
@@ -252,10 +257,12 @@ if (viewParam === "juz" && urlParams.get("juz")) {
             : ""}
         </nav>`;
     });
-
+    initializeCopyIcons();
   return;
 }
+// === END OF QURANIC JUZ === //
 
+// === BEGIN QURANIC TOPICS === //
 if (viewParam === "topics") {
   const currentPage = parseInt(urlParams.get("page")) || 1;
   const pageSize = 30;
@@ -321,7 +328,9 @@ if (viewParam === "topics") {
 
   return;
 }
+// === END OF QURANIC TOPICS === //
 
+// === BEGIN TAFSIR HANDLER === //
 if (viewParam === "tafsirs" && authorParam && !langParam) {
   content.innerHTML = `
     <div class="alert alert-light mt-4">
@@ -333,7 +342,6 @@ if (viewParam === "tafsirs" && authorParam && !langParam) {
   document.title = "404 Page Not Found";
   return;
 }
-
 if (viewParam === "tafsirs" && !authorParam) {
   const breadcrumbHtml = `
     <nav aria-label="breadcrumb">
@@ -381,9 +389,8 @@ if (viewParam === "tafsirs" && !authorParam) {
   return;
 }
 
-// === BEGIN TAFSIR HANDLER === //
 const tafsirSources = {
-  "saadi-en": { type: "txt", file: "/quran/assets/data/tafsir.saadi.txt" },
+  "saadi-en": { type: "txt", file: "/quran/assets/data/tafsirs/tafsir.saadi.txt" },
   "saadi-ar": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ar" },
   "saadi-ru": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ru" },
   "kathir-en": { type: "json", path: "/quran/assets/data/tafsirs/ibn-kathir" }
@@ -590,7 +597,6 @@ if (viewParam === "tafsirs" && authorParam && langParam) {
         document.title = `${titleParam} | Surah ${chapterId}`;
         return;
       }
-
       // TXT full index view
       const uniqueChapters = [...new Set(entries.map(e => e.chapter))];
       const breadcrumb = `
@@ -616,9 +622,9 @@ if (viewParam === "tafsirs" && authorParam && langParam) {
     });
   return;
 }
-// === END TAFSIR HANDLER === //
+// === END OF TAFSIR HANDLER === //
 
-
+// === BEGIN FILTED === //
 if (!verseParam && !searchQuery) {
   const filterContainer = document.createElement("div");
   filterContainer.className = "mb-5 d-flex gap-2 flex-wrap align-items-center";
@@ -635,14 +641,14 @@ window.setFilter = (type) => {
   localStorage.setItem("quran_filter_type", type);
   location.reload();
 };
-
 const chapters = [...new Set(
   verses.filter(v => !isNaN(v.chapter)).map(v => v.chapter)
 )];
+// === END OF FILTER === //
 
+// === BEGIN SEARCH === //
 if (searchQuery) {
 const normalizedQuery = normalizeArabic(searchQuery);
-
 const results = verses.filter(v => {
   const normalizedArabic = normalizeArabic(v.arabic);
   const normalizedSaadi = normalizeArabic(v.saadi);
@@ -681,12 +687,10 @@ const results = verses.filter(v => {
   <div class="card-body">
         ${grouped[ch].map(v => `
           <div class="verse-block p-3 mb-3">
-    <div class="d-flex justify-content-start">
-      <a href="?verse=${v.chapter}:${v.verse}" class="btn btn-sm ayah-link bg-opacity-75 bg-gradient text-decoration-none">${v.chapter}:${v.verse}</a>
-     <audio id="audio-${v.chapter}-${v.verse}" src="https://everyayah.com/data/Nasser_Alqatami_128kbps/${pad(v.chapter)}${pad(v.verse)}.mp3"></audio>
-     <button class="btn btn-sm border-0 play icon-audio" onclick="toggleAudio('audio-${v.chapter}-${v.verse}', this)">
-     </button>
-    </div>
+            <div class="d-flex justify-content-start">
+             <a href="?verse=${v.chapter}:${v.verse}" class="btn btn-sm ayah-link bg-opacity-75 bg-gradient text-decoration-none">${v.chapter}:${v.verse}</a>
+             ${renderAudioButton(v.chapter, v.verse)}
+          </div>
             <p class="mb-1 arabic" dir="rtl">
              ${highlight(v.arabic, searchQuery)}
             <button class="btn btn-sm small border-0 icon-copy"
@@ -711,8 +715,10 @@ const results = verses.filter(v => {
     initializeAudioIcons();
   return;
 }
+// === END OF SEARCH === //
 
-  const rangeMatch = verseParam?.match(/^(\d+):(\d+)-(\d+)$/);
+// === BEGIN VERSES RANGE eg. (?verse=1:2-3) === //
+const rangeMatch = verseParam?.match(/^(\d+):(\d+)-(\d+)$/);
   if (rangeMatch) {
     const chapterId = parseInt(rangeMatch[1]);
     const start = parseInt(rangeMatch[2]);
@@ -744,16 +750,13 @@ const html = rangeVerses.map(v => `
       </button>
     </p>
     <div class="btn-group mt-3 mb-3">
-     <audio id="audio-${v.chapter}-${v.verse}" src="https://everyayah.com/data/Nasser_Alqatami_128kbps/${pad(v.chapter)}${pad(v.verse)}.mp3"></audio>
-     <button class="btn btn-sm border-0 play icon-audio" onclick="toggleAudio('audio-${v.chapter}-${v.verse}', this)">
-     </button>
+     ${renderAudioButton(v.chapter, v.verse)}
      <button class="btn btn-sm small border-0 icon-copy" data-copy="${location.href}" onclick="copyTextFromData(this)">
       <span class="ayah-url-copy">Ayah URL</span>
      </button>
     </div>
   </div>
 `).join("");
-
 const breadcrumbHtml = `
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -762,7 +765,6 @@ const breadcrumbHtml = `
       <li class="breadcrumb-item active" aria-current="page">Surah ${chapterId}:${start}-${end}</li>
     </ol>
   </nav>`;
-
 content.innerHTML = `
   ${breadcrumbHtml}
   <div class="card border-0">
@@ -772,21 +774,22 @@ content.innerHTML = `
     </div>
   </div>
 `;
+  initializeCopyIcons(); 
+  initializeAudioIcons();
+  document.title = `Surah ${name.transliteration || ""} ${chapterId}:${start}-${end}`;
+  return;
+}
+// === END VERSES RANGE eg. (?verse=1:2-3) === //
 
-initializeCopyIcons(); 
-initializeAudioIcons();
-document.title = `Surah ${name.transliteration || ""} ${chapterId}:${start}-${end}`;
-return;
-  }
+// === BEGIN QURAN surahs, verses, etc === //
+  if (verseParam) {
+     const [chapterIdStr, verseIdStr] = verseParam.split(":");
+     const chapterId = parseInt(chapterIdStr);
+     const verseId = verseIdStr ? parseInt(verseIdStr) : null;
 
-      if (verseParam) {
-        const [chapterIdStr, verseIdStr] = verseParam.split(":");
-        const chapterId = parseInt(chapterIdStr);
-        const verseId = verseIdStr ? parseInt(verseIdStr) : null;
-
-if (verseId) {
-  const verse = verses.find(v => v.chapter === chapterId && v.verse === verseId);
-  const name = surahNames[chapterId] || { transliteration: "", arabic: "" };
+  if (verseId) {
+    const verse = verses.find(v => v.chapter === chapterId && v.verse === verseId);
+    const name = surahNames[chapterId] || { transliteration: "", arabic: "" };
 
   if (verse) {
     const pad = (n) => String(n).padStart(3, '0');
@@ -823,10 +826,7 @@ ${viewParam === 'tafsir' ? `
 
 `}
           <div class="btn-group mt-3">
-           <audio id="audio-${verse.chapter}-${verse.verse}" src="${audioURL}"></audio>
-           <button class="btn btn-sm rounded border-0 play icon-audio"
-            onclick="toggleAudio('audio-${verse.chapter}-${verse.verse}', this)">
-           </button>
+           ${renderAudioButton(verse.chapter, verse.verse)}
            <button class="btn btn-sm small border-0 icon-copy"
             data-copy="${location.href}"
             onclick="copyTextFromData(this)">
@@ -905,10 +905,7 @@ ${verse.tafsir && verse.tafsir !== "(No tafsir available)" ? `
            </button>
       </p>
         <div class="btn-group mt-3 mb-3">
-        <audio id="audio-${v.chapter}-${v.verse}" src="https://everyayah.com/data/Nasser_Alqatami_128kbps/${pad(v.chapter)}${pad(v.verse)}.mp3"></audio>
-        <button class="btn btn-sm border-0 play icon-audio"
-         onclick="toggleAudio('audio-${v.chapter}-${v.verse}', this)">
-        </button>
+           ${renderAudioButton(v.chapter, v.verse)}
            <button class="btn btn-sm small border-0 icon-copy"
             data-copy="${location.href}"
             onclick="copyTextFromData(this)">
@@ -941,7 +938,6 @@ let paginationHtml = `
           document.title = `Surah ${name.transliteration}`;
           initializeCopyIcons();
           initializeAudioIcons();
-
         }
       } else {
         const chapters = [...new Set(
@@ -1025,7 +1021,9 @@ ${verseId !== null ? `
     </nav>
   `;
 }
+// === END QURAN surahs, verses, etc === //
 
+// === BEGIN COPY === //
 function copyTextFromData(btn) {
   const text = btn.getAttribute("data-copy");
   navigator.clipboard.writeText(text).then(() => {
@@ -1044,7 +1042,6 @@ function copyTextFromData(btn) {
     }, 1500);
   });
 }
-
 function insertCopyIcon(btn) {
   const icon = document.createElement("span");
   icon.innerHTML = `
@@ -1061,11 +1058,12 @@ function insertCopyIcon(btn) {
     btn.prepend(icon);
   }
 }
-
 function initializeCopyIcons() {
   document.querySelectorAll(".icon-copy").forEach(insertCopyIcon);
 }
+// === END OF COPY === //
 
+// === BEGIN AUDIO === //
 function insertAudioIcon(btn) {
   btn.innerHTML = `
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -1078,7 +1076,6 @@ function insertAudioIcon(btn) {
 function initializeAudioIcons() {
   document.querySelectorAll(".icon-audio").forEach(insertAudioIcon);
 }
-
 function toggleAudio(audioId, btn) {
   const audio = document.getElementById(audioId);
   if (!audio) return;
@@ -1116,24 +1113,34 @@ function toggleAudio(audioId, btn) {
       </svg>`;
   };
 }
+// === END OF AUDIO === //
 
 function formatTafsir(text) {
   if (!text) return "";
-
   return text
     .replace(/#/g, "<br><br>")
     .replace(/\*([^*]+)\*/g, '“<strong>$1</strong>”')
-    .replace(/\\n/g, "\n")           // Convert escaped newlines to real line breaks
-    .replace(/\\+"/g, '"')           // Replace escaped double quotes
-    .replace(/\\\\/g, "\\")          // Handle double backslashes
-    .replace(/\n/g, "<br><br>");         // Optionally convert line breaks to <br> in HTML
+    .replace(/\\n/g, "\n")
+    .replace(/\\+"/g, '"')
+    .replace(/\\\\/g, "\\")
+    .replace(/\n/g, "<br><br>");
 }
 function cleanTafsirText(text) {
   return text
-    .replace(/\\n/g, '\n')    // Convert escaped newlines to real line breaks
-    .replace(/\\r/g, '')      // Remove carriage returns
-    .replace(/\\t/g, ' ')     // Convert tabs to space
-    .replace(/\\\\/g, '\\')   // Replace double backslashes with single
-    .replace(/\\"/g, '"')     // Replace escaped quotes
-    .replace(/\\'/g, "'");    // Replace escaped single quotes
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '')
+    .replace(/\\t/g, ' ')
+    .replace(/\\\\/g, '\\')
+    .replace(/\\"/g, '"')
+    .replace(/\\'/g, "'"); 
+}
+
+function renderAudioButton(chapter, verse) {
+  const pad = (n) => String(n).padStart(3, '0');
+  const id = `audio-${chapter}-${verse}`;
+  const src = `https://everyayah.com/data/Nasser_Alqatami_128kbps/${pad(chapter)}${pad(verse)}.mp3`;
+  return `
+    <audio id="${id}" src="${src}"></audio>
+    <button class="btn btn-sm border-0 play icon-audio" onclick="toggleAudio('${id}', this)"></button>
+  `;
 }
