@@ -978,7 +978,7 @@ chapters.forEach(ch => {
   `;
   content.appendChild(col);
   const svgContainer = col.querySelector(`#surah-svg-${ch}`);
-  fetch(`assets/svg/${ch}.svg`)
+  fetch(`/quran/assets/svg/${ch}.svg`)
     .then(res => {
       if (!res.ok) throw new Error(`Failed to load SVG ${ch}`);
       return res.text();
