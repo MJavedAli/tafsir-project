@@ -86,10 +86,19 @@ const tafsir = tafsirMap[ar.key] || "";
 
 let arabicText = ar.text;
 let basmalah = "";
-if (ar.chapter !== 1 && ar.chapter !== 9 && arabicText.startsWith("بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ")) {
-  const parts = arabicText.split("بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ");
-  basmalah = "بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ";
-  arabicText = parts[1].trim();
+const basmalahPatterns = [
+  "بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ",
+  "بسم الله الرحمن الرحيم"
+];
+
+if (ar.chapter !== 1 && ar.chapter !== 9) {
+  for (const pattern of basmalahPatterns) {
+    if (arabicText.startsWith(pattern)) {
+      basmalah = pattern;
+      arabicText = arabicText.slice(pattern.length).trim();
+      break;
+    }
+  }
 }
   return {
     chapter: ar.chapter,
