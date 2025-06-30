@@ -299,11 +299,11 @@ window.addEventListener("DOMContentLoaded", () => {
   function updateToggleUI(isSimpleArabic) {
     if (isSimpleArabic) {
       toggle.classList.add("active");
-      icon.innerHTML = `<img src="assets/svg-icons/harakat-off.svg" width="24" height="24" alt="Show Harakat">`;
+      icon.innerHTML = `<img src="/quran/assets/svg-icons/harakat-off.svg" width="24" height="24" alt="Show Harakat">`;
       text.textContent = "Show Harakat";
     } else {
       toggle.classList.remove("active");
-      icon.innerHTML = `<img src="assets/svg-icons/harakat-on.svg" width="24" height="24" alt="Hide Harakat">`;
+      icon.innerHTML = `<img src="/quran/assets/svg-icons/harakat-on.svg" width="24" height="24" alt="Hide Harakat">`;
       text.textContent = "Hide Harakat";
     }
   }
