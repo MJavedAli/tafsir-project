@@ -648,8 +648,29 @@ const chapters = [...new Set(
 
 // === BEGIN SEARCH === //
 if (searchQuery) {
-const normalizedQuery = normalizeArabic(searchQuery);
-const results = verses.filter(v => {
+  const verseRangeMatch = searchQuery.match(/^(\d+):(\d+)-(\d+)$/);
+  const singleVerseMatch = searchQuery.match(/^(\d+):(\d+)$/);
+  const surahOnlyMatch = searchQuery.match(/^\d+$/);
+
+  if (verseRangeMatch) {
+    const [_, surah, start, end] = verseRangeMatch;
+    window.location.href = `?verse=${surah}:${start}-${end}`;
+    return;
+  }
+
+  if (singleVerseMatch) {
+    const [_, surah, ayah] = singleVerseMatch;
+    window.location.href = `?verse=${surah}:${ayah}`;
+    return;
+  }
+
+  if (surahOnlyMatch) {
+    window.location.href = `?verse=${searchQuery}`;
+    return;
+  }
+
+  const normalizedQuery = normalizeArabic(searchQuery);
+  const results = verses.filter(v => {
   const normalizedArabic = normalizeArabic(v.arabic);
   const normalizedSaadi = normalizeArabic(v.saadi);
   const normalizedTafsir = normalizeArabic(v.tafsir);
