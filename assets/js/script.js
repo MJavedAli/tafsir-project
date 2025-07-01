@@ -390,7 +390,7 @@ if (viewParam === "tafsirs" && !authorParam) {
 }
 
 const tafsirSources = {
-  "saadi-en": { type: "txt", file: "/quran/assets/data/tafsirs/tafsir.saadi.txt" },
+  "saadi-en": { type: "txt", file: "/quran/assets/data/tafsir.saadi.txt" },
   "saadi-ar": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ar" },
   "saadi-ru": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ru" },
   "kathir-en": { type: "json", path: "/quran/assets/data/tafsirs/ibn-kathir" }
