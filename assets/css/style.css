@@ -584,6 +584,18 @@ svg {
   border: 1px solid var(--color-hover-primary) !important;
 }
 
+.verse-count, .en-verse {
+ font-size: 12px !important;
+}
+ .surah-list {
+  border: 1px var(--color-bg-secondary) solid !important;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+ }
+ .surah-list:hover {
+  border: 1px var(--color-hover-primary) solid !important;
+  transform: translateY(-2px);;
+ }
+
  /* dark theme */
 .dark-theme {
  body {
