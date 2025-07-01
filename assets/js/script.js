@@ -176,15 +176,19 @@ const juzRanges = [
 
 // === BEGIN QURANIC JUZ === //
 if (viewParam === "juz" && !urlParams.get("juz")) {
-  content.innerHTML = `<h4 class="mb-4">📖 Juz Index</h4>`;
-  juzRanges.forEach((range, i) => {
-    content.innerHTML += `
-      <div class="mb-2">
-        <a href="?view=juz&juz=${i + 1}" class="btn btn-outline-primary w-100 text-start">
-          📘 Juz ${i + 1} (${range.start} – ${range.end})
-        </a>
-      </div>`;
-  });
+  content.innerHTML = `<h4 class="mb-4">Juz Index</h4>`;
+  const juzList = juzRanges.map((range, i) => {
+    const [startSurah] = range.start.split(":").map(Number);
+    const [endSurah] = range.end.split(":").map(Number);
+    const startName = surahNames[startSurah]?.transliteration || `Surah ${startSurah}`;
+    const endName = surahNames[endSurah]?.transliteration || `Surah ${endSurah}`;
+    return `
+      <a href="?view=juz&juz=${i + 1}" class="list-group-item list-group-item-action w-100 text-start">
+        <h5 class="mb-1 fw-bold">Juz ${i + 1}</h5>
+        <p class="mb-1">${startName} ${range.start} – ${endName} ${range.end}</p>
+      </a>`;
+  }).join("");
+  content.innerHTML += `<div class="list-group">${juzList}</div>`;
   return;
 }
 if (viewParam === "juz" && urlParams.get("juz")) {
@@ -982,17 +986,17 @@ chapters.forEach(ch => {
   col.className = "col-12 col-sm-6 col-lg-4 d-flex";
   col.innerHTML = `
   <div class="card flex-fill h-100 shadow-sm surah-list">
-    <a href="?verse=${ch}" class="card-body text-decoration-none p-0 m-0">
+    <a href="?verse=${ch}" class="card-body text-decoration-none p-0 m-0" title="${name.transliteration}">
       <div class="d-flex">
         <div class="pe-2 w-100">
-          <h5 class="card-title mb-1 small">${ch}. ${name.transliteration}</h5>
-          <p class="card-text mb-0 small">${name.english || ""}</p>
-          <div class="d-flex justify-content-start">
-          <small class="text-muted">${verseCount} Ayah${verseCount > 1 ? 's' : ''}</small><br>
-          <small class="text-muted" style="margin-left:5px;">${name.type}</small>
-          </div>
+          <h5 class="card-title mb-1 small fw-bold">${ch}. ${name.transliteration}</h5>
+          <p class="mb-0 small en-verse">${name.english || ""}</p>
+          <p class="mb-0 m-0 p-0 small text-muted">${name.type}</p>
         </div>
-        <div class="ps-2 flex-shrink-0 align-self-center" id="surah-svg-${ch}"></div>
+        <div class="ps-2 flex-shrink-0 align-self-center text-center">
+         <div id="surah-svg-${ch}"></div>
+         <p class="text-muted small verse-count">${verseCount} Ayah${verseCount > 1 ? 's' : ''}</p>
+        </div>
       </div>
     </a>
   </div>
@@ -1015,7 +1019,7 @@ chapters.forEach(ch => {
       svgContainer.textContent = `#${ch}`; // fallback text
     });
 });
-  document.title = "Al-Quran";
+  document.title = "Al-Quran Al-Karim";
       }
     })
     .catch(err => {
