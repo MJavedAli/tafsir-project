@@ -807,10 +807,35 @@ content.innerHTML = `
 // === END VERSES RANGE eg. (?verse=1:2-3) === //
 
 // === BEGIN QURAN surahs, verses, etc === //
+const [chapterIdStr, verseIdStr] = (verseParam || "").split(":");
+const chapterId = parseInt(chapterIdStr);
+const verseId = verseIdStr ? parseInt(verseIdStr) : null;
+const chapterName = surahNames[chapterId]?.transliteration || `Surah ${chapterId}`;
+let breadcrumbHtml = "";
+
   if (verseParam) {
      const [chapterIdStr, verseIdStr] = verseParam.split(":");
      const chapterId = parseInt(chapterIdStr);
      const verseId = verseIdStr ? parseInt(verseIdStr) : null;
+
+  breadcrumbHtml = `
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="/quran/" class="text-decoration-none text-success">Home</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="?verse=${chapterId}" class="text-decoration-none text-success">Surah ${chapterId}: ${chapterName}</a>
+        </li>
+        ${
+          verseId !== null
+            ? `<li class="breadcrumb-item active" aria-current="page">
+                 ${viewParam === 'tafsir' ? `Tafsir of Surah ${chapterId}:${verseId}` : `Verse ${chapterId}:${verseId}`}
+               </li>`
+            : ""
+        }
+      </ol>
+    </nav>`;
 
   if (verseId) {
     const verse = verses.find(v => v.chapter === chapterId && v.verse === verseId);
@@ -911,11 +936,11 @@ ${verse.tafsir && verse.tafsir !== "(No tafsir available)" ? `
   if (v.basmalah && v.basmalah.trim() !== "") {
     basmalahHTML = '<p class="mb-5 arabic fw-semibold text-center">' + v.basmalah + '</p>';
   }
-
   return `
     <div class="verse-block p-0 mb-0 mt-3">
       ${basmalahHTML} 
-      <p><a role="button" href="?verse=${v.chapter}:${v.verse}" class="text-decoration-none btn btn-sm ayah-link">${v.chapter}:${v.verse}</a></p>
+      <p><a role="button" href="?verse=${v.chapter}:${v.verse}" class="text-decoration-none btn btn-sm ayah-link">         ${v.chapter}:${v.verse}</a>
+      </p>
       <p class="mb-3 arabic" dir="rtl">${v.arabic}
            <button class="btn btn-sm small border-0 icon-copy"
             data-copy="${v.arabic.replace(/"/g, '&quot;')}"
@@ -950,7 +975,8 @@ let paginationHtml = `
 `;
           content.innerHTML = `
           ${breadcrumbHtml}
-          <h2 class="surah-name-arabic me-2 text-center fs-1">surah${String(chapterId).padStart(3, '0')}</h2>
+          <h2 class="surah-name-arabic me-2 text-center fs-1 d-none">surah${String(chapterId).padStart(3, '0')}</h2>
+          <div class="text-center m-0 p-0" id="surah-svg-${chapterId}"></div>
           <h3 class="text-center m-0 p-0">${name.transliteration} (${name.english})</h3>
           <h4 class="text-center m-0 p-0">${verseCount} Verses</h4>
             <div class="card border-0">
@@ -963,6 +989,28 @@ let paginationHtml = `
           document.title = `Surah ${name.transliteration}`;
           initializeCopyIcons();
           initializeAudioIcons();
+const svgContainer = document.getElementById(`surah-svg-${chapterId}`);
+fetch(`/quran/assets/svg/${chapterId}.svg`)
+  .then(res => {
+    if (!res.ok) throw new Error(`Failed to load SVG ${chapterId}`);
+    return res.text();
+  })
+  .then(svg => {
+    if (document.body.classList.contains('dark-theme')) {
+      svg = svg.replace(/fill="[^"]*"/g, 'fill="#ffffff"');
+    }
+    // Force size (optional: adjust numbers as needed)
+    svg = svg
+      .replace(/width="[^"]*"/i, 'width="100"')
+      .replace(/height="[^"]*"/i, 'height="100"')
+      .replace(/viewBox="[^"]*"/i, match => match || 'viewBox="0 0 100 100"'); // fallback
+    svgContainer.innerHTML = svg;
+  })
+  .catch(err => {
+    console.error(err);
+    svgContainer.textContent = `#${chapterId}`;
+  });
+
         }
       } else {
         const chapters = [...new Set(
@@ -1018,7 +1066,7 @@ chapters.forEach(ch => {
       console.error(err);
       svgContainer.textContent = `#${ch}`; // fallback text
     });
-});
+ });
   document.title = "Al-Quran Al-Karim";
       }
     })
@@ -1026,26 +1074,6 @@ chapters.forEach(ch => {
       console.error("Error loading Quran text:", err);
       content.innerHTML = `<p>Error loading Quran text files.</p>`;
     });
-
-const [chapterIdStr, verseIdStr] = (verseParam || "").split(":");
-const chapterId = parseInt(chapterIdStr);
-const verseId = verseIdStr ? parseInt(verseIdStr) : null;
-let breadcrumbHtml = "";
-if (verseParam) {
-  breadcrumbHtml = `
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/quran/" class="text-decoration-none text-success">Home</a></li>
-        <li class="breadcrumb-item"><a href="?verse=${chapterId}" class="text-decoration-none text-success">Surah ${chapterId}</a></li>
-${verseId !== null ? `
-  <li class="breadcrumb-item active" aria-current="page">
-    ${viewParam === 'tafsir' ? `Tafsir of Surah ${chapterId}:${verseId}` : `Surah ${chapterId}:${verseId}`}
-  </li>
-` : ""}
-      </ol>
-    </nav>
-  `;
-}
 // === END QURAN surahs, verses, etc === //
 
 // === BEGIN COPY === //
