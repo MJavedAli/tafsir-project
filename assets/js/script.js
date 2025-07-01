@@ -358,7 +358,7 @@ if (viewParam === "tafsirs" && !authorParam) {
   content.innerHTML = `
     ${breadcrumbHtml}
     <h2 class="page-title">Tafsir</h2>
-    <table class="table table-hover">
+    <table class="table table-hover table-lg">
       <thead>
         <tr>
           <th scope="col">#</th>
@@ -509,9 +509,9 @@ if (viewParam === "tafsirs" && authorParam && langParam) {
     for (let cid = 1; cid <= 114; cid++) {
       const n = surahNames[cid] || { transliteration: "" };
       content.innerHTML += `
-        <div>
-          <a href="?view=tafsirs&author=${authorParam}&lang=${langParam}&verse=${cid}" class="w-100 text-start">
-            Surah ${cid} (${n.transliteration})
+        <div class="list-group col-12 col-sm-6 col-lg-4 d-flex">
+          <a href="?view=tafsirs&author=${authorParam}&lang=${langParam}&verse=${cid}" class="list-group-item list-group-item-action w-100 text-start">
+            ${cid}. ${n.transliteration}
           </a>
         </div>`;
     }
@@ -585,9 +585,10 @@ if (viewParam === "tafsirs" && authorParam && langParam) {
         content.innerHTML = `${breadcrumb}<h4 class="mb-4">${titleParam} – Surah ${chapterId} (${name.transliteration})</h4><div class="list-group">`;
         paginated.forEach(e => {
           content.innerHTML += `
+           <div class="list-group">
             <a href="?view=tafsirs&author=${authorParam}&lang=${langParam}&verse=${e.chapter}:${e.rangeStr}" class="list-group-item list-group-item-action">
               Ayah ${e.rangeStr}
-            </a>`;
+            </a></div>`;
         });
         content.innerHTML += `</div>`;
 
@@ -616,8 +617,8 @@ if (viewParam === "tafsirs" && authorParam && langParam) {
       uniqueChapters.forEach(cid => {
         const n = surahNames[cid] || { transliteration: "" };
         content.innerHTML += `
-          <div>
-            <a href="?view=tafsirs&author=${authorParam}&lang=${langParam}&verse=${cid}" class="w-100 text-start">
+          <div class="list-group col-12 col-sm-6 col-lg-4 d-flex">
+            <a href="?view=tafsirs&author=${authorParam}&lang=${langParam}&verse=${cid}" class="list-group-item list-group-item-action w-100 text-start">
               Surah ${cid} (${n.transliteration})
             </a>
           </div>`;
