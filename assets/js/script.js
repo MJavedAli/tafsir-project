@@ -402,7 +402,6 @@ const tafsirSources = {
 
 function formatTafsir(text) {
   if (!text) return "";
-
   return text
     .replace(/\\n/g, '\n')
     .replace(/\\r/g, '')
@@ -410,15 +409,15 @@ function formatTafsir(text) {
     .replace(/\\\\/g, '\\')
     .replace(/\\"/g, '"')
     .replace(/\\'/g, "'")
-
-    // Replace actual line breaks with <br><br>
     .replace(/\n+/g, "<br><br>")
-
-    // Bold quoted sentences ending in a period: "Something."
     .replace(/"([^"]+?\.)"/g, '<b>"$1"</b>')
-
-    // Bold Arabic text between newlines (optional)
-    .replace(/\n([^\n]{3,}[\u0600-\u06FF]+[^\n]{3,})\n/g, '<br><br><b>$1</b><br><br>');
+    .replace(/\n([^\n]{3,}[\u0600-\u06FF]+[^\n]{3,})\n/g, '<br><br><b>$1</b><br><br>')
+    .replace(/#/g, "<br><br>")
+    .replace(/\*([^*]+)\*/g, '“<strong>$1</strong>”')
+    .replace(/\\n/g, "\n")
+    .replace(/\\+"/g, '"')
+    .replace(/\\\\/g, "\\")
+    .replace(/\n/g, "<br><br>");
 }
 
 if (viewParam === "tafsirs" && authorParam && langParam) {
