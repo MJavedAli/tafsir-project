@@ -400,6 +400,27 @@ const tafsirSources = {
   "kathir-en": { type: "json", path: "/quran/assets/data/tafsirs/ibn-kathir" }
 };
 
+function formatTafsir(text) {
+  if (!text) return "";
+
+  return text
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '')
+    .replace(/\\t/g, '')
+    .replace(/\\\\/g, '\\')
+    .replace(/\\"/g, '"')
+    .replace(/\\'/g, "'")
+
+    // Replace actual line breaks with <br><br>
+    .replace(/\n+/g, "<br><br>")
+
+    // Bold quoted sentences ending in a period: "Something."
+    .replace(/"([^"]+?\.)"/g, '<b>"$1"</b>')
+
+    // Bold Arabic text between newlines (optional)
+    .replace(/\n([^\n]{3,}[\u0600-\u06FF]+[^\n]{3,})\n/g, '<br><br><b>$1</b><br><br>');
+}
+
 if (viewParam === "tafsirs" && authorParam && langParam) {
   const key = `${authorParam}-${langParam}`;
   const source = tafsirSources[key];
@@ -450,7 +471,7 @@ if (viewParam === "tafsirs" && authorParam && langParam) {
             ${breadcrumb}
             <h4>${titleParam} – Surah ${chapterId} (${name.transliteration}) Ayah ${start}</h4>
             <div class="card border-0 p-4 mb-4">
-              <div class="english">${data.text}</div>
+              <div class="english">${formatTafsir(data.text)}</div>
             </div>`;
           document.title = `${titleParam} | Surah ${chapterId}:${start}`;
         })
@@ -1179,16 +1200,6 @@ function formatTafsir(text) {
     .replace(/\\\\/g, "\\")
     .replace(/\n/g, "<br><br>");
 }
-function cleanTafsirText(text) {
-  return text
-    .replace(/\\n/g, '\n')
-    .replace(/\\r/g, '')
-    .replace(/\\t/g, ' ')
-    .replace(/\\\\/g, '\\')
-    .replace(/\\"/g, '"')
-    .replace(/\\'/g, "'"); 
-}
-
 function renderAudioButton(chapter, verse) {
   const pad = (n) => String(n).padStart(3, '0');
   const id = `audio-${chapter}-${verse}`;
