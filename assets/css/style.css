@@ -215,6 +215,7 @@ body {
 .menu-list .menu-link:is(:hover, .active) {
   color: #fff;
   background: var(--color-hover-primary);
+  fill: #fff;
 }
 .sidebar .sidebar-footer {
   padding: 20px 18px;
@@ -382,6 +383,9 @@ body.dark-theme .theme-toggle-indicator {
   display: inline-block;
   fill: currentColor;
 }
+ svg {
+  fill: currentColor !important;
+ }
 }
 
 /* Harakat toggle layout */
@@ -441,9 +445,6 @@ body.dark-theme .harakat-track {
   transform: translateX(24px);
 }
 
-svg {
-  fill: currentColor !important;
-}
 .header-logo-container svg {
   width: 100%;
   height: auto;
@@ -583,7 +584,6 @@ svg {
 .btn.active {
   border: 1px solid var(--color-hover-primary) !important;
 }
-
 .verse-count, .en-verse {
  font-size: 12px !important;
 }
@@ -596,6 +596,24 @@ svg {
   transform: translateY(-2px);;
  }
 
+ .header-logo-container svg {
+   width: 80px;
+   height: auto;
+   display: inline-block;
+   fill: currentColor;
+ }
+ svg {
+  fill: var(--color-primary) !important;
+ }
+ .icon-copy {
+  fill: var(--color-hover-primary) !important;
+ }
+ .icon-audio {
+  fill: var(--color-hover-primary) !important;
+ }
+    .ayah-url-copy {
+        color: var(--color-hover-primary) !important;
+    }
  /* dark theme */
 .dark-theme {
  body {
@@ -706,7 +724,7 @@ svg {
    color: var(--color-hover-primary) !important;
  }
  .ayah-url-copy {
-  color: var(--color-hover-primary) !important;
+  color: var(--color-text-primary) !important;
  }
  .icon-search {
   color: white !important;
@@ -736,5 +754,14 @@ svg {
  }
  .chapter-name-search {
    color: var(--color-text-primary) !important;
+ }
+ .header-logo-container svg {
+   width: 80px;
+   height: auto;
+   display: inline-block;
+   fill: currentColor;
+ }
+ svg {
+  fill: var(--color-text-primary) !important;
  }
 }
