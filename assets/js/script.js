@@ -1058,7 +1058,7 @@ chapters.forEach(ch => {
     <a href="?verse=${ch}" class="card-body text-decoration-none p-0 m-0" title="${name.transliteration}">
       <div class="d-flex">
         <div class="pe-2 w-100">
-          <h5 class="card-title mb-1 small fw-bold">${ch}. ${name.transliteration}</h5>
+          <h5 class="card-title mb-1 small fw-bold"><span class="badge badge-primary rounded-fill">${ch}</span> ${name.transliteration}</h5>
           <p class="mb-0 small en-verse">${name.english || ""}</p>
           <p class="mb-0 m-0 p-0 small text-muted">${name.type}</p>
         </div>
