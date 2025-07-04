@@ -168,6 +168,8 @@ function updateMainContentMargin() {
   function updateThemeIcon() {
     const isDark = document.body.classList.contains("dark-theme");
     themeIcon.innerHTML = isDark ? svgSun : svgMoon;
+    const themeText = themeToggleBtn.querySelector(".theme-text");
+    themeText.textContent = isDark ? "Light Mode" : "Dark Mode";
   }
 
   // Apply theme from storage or system preference
