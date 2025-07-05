@@ -183,10 +183,12 @@ if (viewParam === "juz" && !urlParams.get("juz")) {
     const startName = surahNames[startSurah]?.transliteration || `Surah ${startSurah}`;
     const endName = surahNames[endSurah]?.transliteration || `Surah ${endSurah}`;
     return `
+     <div class="col col-md-4 col-12 mb-3">
+     <div class="card card-body m-0 p-3 h-100 card-hover">
       <a href="?view=juz&juz=${i + 1}" class="list-group-item list-group-item-action w-100 text-start">
         <h5 class="mb-1 fw-bold">Juz ${i + 1}</h5>
-        <p class="mb-1">${startName} ${range.start} – ${endName} ${range.end}</p>
-      </a>`;
+        <p class="mb-1 small">${startName} ${range.start} – ${endName} ${range.end}</p>
+      </a></div></div>`;
   }).join("");
   content.innerHTML += `<div class="list-group">${juzList}</div>`;
   return;
@@ -1054,7 +1056,7 @@ chapters.forEach(ch => {
   const col = document.createElement("div");
   col.className = "col-12 col-sm-6 col-lg-4 d-flex";
   col.innerHTML = `
-  <div class="card flex-fill h-100 shadow-sm surah-list">
+  <div class="card flex-fill h-100 shadow-sm card-hover">
     <a href="?verse=${ch}" class="card-body text-decoration-none p-0 m-0" title="${name.transliteration}">
       <div class="d-flex">
         <div class="pe-2 w-100">

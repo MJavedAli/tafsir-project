@@ -536,7 +536,11 @@ body.dark-theme .harakat-track {
       font-size: 1.4em;
       font-family: 'Segoe UI Symbol', 'Tahoma', 'Arial', 'Amiri', serif !important;
     }
-
+.card-hover:hover {
+ background: var(--color-bg-secondary);
+ transform: translateY(-2px);
+ transition: background-color 0.3s ease, transform 0.3s ease;
+}
 .surah-name-arabic {
   font-family: surah-name-v2-icon;
   font-size: 25pt;
