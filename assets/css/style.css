@@ -1,14 +1,14 @@
 @font-face {
   font-family: 'surah-name-v2-icon';
-  src: url('/quran/assets/fonts/surah-name-v2.woff2') format('woff2'),
-       url('/quran/assets/fonts/surah-name-v2.woff') format('woff'),
-       url('/quran/assets/fonts/surah-name-v2.ttf') format('truetype');
+  src: url('assets/fonts/surah-name-v2.woff2') format('woff2'),
+       url('assets/fonts/surah-name-v2.woff') format('woff'),
+       url('assets/fonts/surah-name-v2.ttf') format('truetype');
   font-display: swap;
 }
 @font-face {
   font-family: 'qpc-nastaleeq';
-  src: url('/quran/assets/fonts/KFGQPCNastaleeq-Regular.woff2') format('woff2'),
-       url('/quran/assets/font/KFGQPCNastaleeq-Regular.ttf') format('truetype');
+  src: url('assets/fonts/KFGQPCNastaleeq-Regular.woff2') format('woff2'),
+       url('assets/font/KFGQPCNastaleeq-Regular.ttf') format('truetype');
   font-display: swap;
 }
 :root {
@@ -377,12 +377,7 @@ body.dark-theme .theme-toggle-indicator {
 .sidebar.collapsed ~ .main-content {
   margin-left: 0px;
 }
-.header-logo-container svg {
-  width: 80px;
-  height: auto;
-  display: inline-block;
-  fill: currentColor;
-}
+
  svg {
   fill: currentColor !important;
  }
@@ -445,12 +440,6 @@ body.dark-theme .harakat-track {
   transform: translateX(24px);
 }
 
-.header-logo-container svg {
-  width: 100%;
-  height: auto;
-  display: block;
-  fill: currentColor;
-}
 .sidebar.collapsed .harakat-toggle :where(.harakat-text, .harakat-track) {
   opacity: 0;
   width: 0;
@@ -536,11 +525,7 @@ body.dark-theme .harakat-track {
       font-size: 1.4em;
       font-family: 'Segoe UI Symbol', 'Tahoma', 'Arial', 'Amiri', serif !important;
     }
-.card-hover:hover {
- background: var(--color-bg-secondary);
- transform: translateY(-2px);
- transition: background-color 0.3s ease, transform 0.3s ease;
-}
+
 .surah-name-arabic {
   font-family: surah-name-v2-icon;
   font-size: 25pt;
@@ -597,15 +582,9 @@ body.dark-theme .harakat-track {
  }
  .surah-list:hover {
   border: 1px var(--color-hover-primary) solid !important;
-  transform: translateY(-2px);;
+  transform: translateY(-2px);
  }
 
- .header-logo-container svg {
-   width: 80px;
-   height: auto;
-   display: inline-block;
-   fill: currentColor;
- }
  svg {
   fill: var(--color-primary) !important;
  }
@@ -615,10 +594,24 @@ body.dark-theme .harakat-track {
  .icon-audio {
   fill: var(--color-hover-primary) !important;
  }
-    .ayah-url-copy {
-        color: var(--color-hover-primary) !important;
-    }
- /* dark theme */
+ .ayah-url-copy {
+  color: var(--color-hover-primary) !important;
+}
+
+.header-logo-container svg {
+  width: 100%;
+  height: 60px !important;
+  display: block;
+  fill: currentColor;
+}
+
+.card-hover:hover {
+ background: var(--color-bg-secondary);
+ transform: translateY(-2px);
+ transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* dark theme */
 .dark-theme {
  body {
   color: var(--color-text-primary) !important;
@@ -760,8 +753,8 @@ body.dark-theme .harakat-track {
    color: var(--color-text-primary) !important;
  }
  .header-logo-container svg {
-   width: 80px;
-   height: auto;
+   width: 100%;
+   height: 60px !important;
    display: inline-block;
    fill: currentColor;
  }
