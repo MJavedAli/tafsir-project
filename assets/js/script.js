@@ -190,7 +190,7 @@ if (viewParam === "juz" && !urlParams.get("juz")) {
         <p class="mb-1 small">${startName} ${range.start} – ${endName} ${range.end}</p>
       </a></div></div>`;
   }).join("");
-  content.innerHTML += `<div class="list-group">${juzList}</div>`;
+  content.innerHTML += `<div class="row">${juzList}</div>`;
   return;
 }
 if (viewParam === "juz" && urlParams.get("juz")) {
