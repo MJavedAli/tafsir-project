@@ -142,52 +142,53 @@ const authorTitles = {
 };
 const titleParam = authorTitles[authorParam] || "Tafsir";
 const juzRanges = [
-  { start: "1:1", end: "2:141" },
-  { start: "2:142", end: "2:252" },
-  { start: "2:253", end: "3:92" },
-  { start: "3:93", end: "4:23" },
-  { start: "4:24", end: "4:147" },
-  { start: "4:148", end: "5:81" },
-  { start: "5:82", end: "6:110" },
-  { start: "6:111", end: "7:87" },
-  { start: "7:88", end: "8:40" },
-  { start: "8:41", end: "9:92" },
-  { start: "9:93", end: "11:5" },
-  { start: "11:6", end: "12:52" },
-  { start: "12:53", end: "14:52" },
-  { start: "15:1", end: "16:128" },
-  { start: "17:1", end: "18:74" },
-  { start: "18:75", end: "20:135" },
-  { start: "21:1", end: "22:78" },
-  { start: "23:1", end: "25:20" },
-  { start: "25:21", end: "27:55" },
-  { start: "27:56", end: "29:45" },
-  { start: "29:46", end: "33:30" },
-  { start: "33:31", end: "36:27" },
-  { start: "36:28", end: "39:31" },
-  { start: "39:32", end: "41:46" },
-  { start: "41:47", end: "45:37" },
-  { start: "46:1", end: "51:30" },
-  { start: "51:31", end: "57:29" },
-  { start: "58:1", end: "66:12" },
-  { start: "67:1", end: "77:50" },
-  { start: "78:1", end: "114:6" }
+  { start: "1:1", end: "2:141", info: "1:1-7 – 2:1-141" },
+  { start: "2:142", end: "2:252", info: "2:142 – 2:252" },
+  { start: "2:253", end: "3:92", info: "2:253-286 – 3:1-92" },
+  { start: "3:93", end: "4:23", info: "3:93-200 – 4:1-23" },
+  { start: "4:24", end: "4:147", info: "4:24 – 4:147" },
+  { start: "4:148", end: "5:81", info: "4:148-176 – 5:1-81" },
+  { start: "5:82", end: "6:110", info: "5:82-120 – 6:1-110" },
+  { start: "6:111", end: "7:87", info: "6:111-165 – 7:1-87" },
+  { start: "7:88", end: "8:40", info: "7:88-206 – 8:1-40" },
+  { start: "8:41", end: "9:92", info: "8:41-75 – 9:1-92" },
+  { start: "9:93", end: "11:5", info: "9:93-129 , 10:1-109 , 11:1-5" },
+  { start: "11:6", end: "12:52", info: "11:6-123 – 12:1-52" },
+  { start: "12:53", end: "14:52", info: "12:53 , 13:1-43 , 14:1-52" },
+  { start: "15:1", end: "16:128", info: "15:1-99 – 16:1-128" },
+  { start: "17:1", end: "18:74", info: "17:1-111 – 18:1-74" },
+  { start: "18:75", end: "20:135", info: "18:75-110 , 19:1-98 , 20:1-135" },
+  { start: "21:1", end: "22:78", info: "21:1-112 – 22:1-78" },
+  { start: "23:1", end: "25:20", info: "23:1-118 , 24:1-64 , 25:1-20" },
+  { start: "25:21", end: "27:55", info: "25:21-77 , 26:1-227 , 27:1-55" },
+  { start: "27:56", end: "29:45", info: "27:56-93 , 28:1-88 , 29:1-45" },
+  { start: "29:46", end: "33:30", info: "29:46-69 , 30:1-60 , 31:1-34 , 32:1-30 , 33:1-30" },
+  { start: "33:31", end: "36:27", info: "33:31-73 , 34:1-54 , 35:1-45 , 36:1-27" },
+  { start: "36:28", end: "39:31", info: "36:28-83 , 37:1-182 , 38:1-88 , 39:1-31" },
+  { start: "39:32", end: "41:46", info: "39:32-75 , 40:1-85 , 41:1-46" },
+  { start: "41:47", end: "45:37", info: "41:47-54 , 42:1-53 , 43:1-89 , 44:1-59 , 45:1-37" },
+  { start: "46:1", end: "51:30", info: "46:1-35 , 47:1-38 , 48:1-29 , 49:1-18 , 50:1-45 , 51:1-30" },
+  { start: "51:31", end: "57:29", info: "51:31-60 , 52:1-49 , 53:1-62 , 54:1-55 , 55:1-78 , 56:1-96 , 57:1-29" },
+  { start: "58:1", end: "66:12", info: "58:1-22 , 59:1-24 , 60:1-13 , 61:1-14 , 62:1-11 , 63:1-11 , 64:1-18 , 65:1-12 , 66:1-12" },
+  { start: "67:1", end: "77:50", info: "67:1-30 , 68:1-52 , 69:1-52 , 70:1-44 , 71:1-28 , 72:1-28 , 73:1-20 , 74:1-56 , 75:1-40 , 76:1-31 , 77:1-50" },
+  { start: "78:1", end: "114:6", info: "78:1-40 , 79:1-46 , 80:1-42 , 81:1-29 , 82:1-19 , 83:1-36 , 84:1-25 , 85:1-22 , 86:1-17 , 87:1-19 , 88:1-26 , 89:1-30 , 90:1-20 , 91:1-15 , 92:1-21 , 93:1-11 , 94:1-8 , 95:1-8 , 96:1-19 , 97:1-5 , 98:1-8 , 99:1-8 , 100:1-11 , 101:1-11 , 102:1-8 , 103:1-3 , 104:1-9 , 105:1-5 , 106:1-4 , 107:1-7 , 108:1-3 , 109:1-6 , 110:1-3 , 111:1-5 , 112:1-4 , 113:1-5 , 114:1-6" }
 ];
 
 // === BEGIN QURANIC JUZ === //
 if (viewParam === "juz" && !urlParams.get("juz")) {
   content.innerHTML = `<h4 class="mb-4">Juz Index</h4>`;
   const juzList = juzRanges.map((range, i) => {
-    const [startSurah] = range.start.split(":").map(Number);
-    const [endSurah] = range.end.split(":").map(Number);
-    const startName = surahNames[startSurah]?.transliteration || `Surah ${startSurah}`;
-    const endName = surahNames[endSurah]?.transliteration || `Surah ${endSurah}`;
+  const [startSurah] = range.start.split(":").map(Number);
+  const [endSurah] = range.end.split(":").map(Number);
+  const startName = surahNames[startSurah]?.transliteration || `Surah ${startSurah}`;
+  const endName = surahNames[endSurah]?.transliteration || `Surah ${endSurah}`;
     return `
      <div class="col col-md-4 col-12 mb-3">
      <div class="card card-body m-0 p-3 h-100 card-hover">
       <a href="?view=juz&juz=${i + 1}" class="list-group-item list-group-item-action w-100 text-start">
         <h5 class="mb-1 fw-bold">Juz ${i + 1}</h5>
         <p class="mb-1 small">${startName} ${range.start} – ${endName} ${range.end}</p>
+        <p class="mb-1 small d-none">${startName} – ${endName} ${range.info}</p>
       </a></div></div>`;
   }).join("");
   content.innerHTML += `<div class="row">${juzList}</div>`;
@@ -233,25 +234,32 @@ if (viewParam === "juz" && urlParams.get("juz")) {
 
       content.innerHTML = `
         ${breadcrumb}
-        <h4 class="mb-4">Juz ${juzId} (${range.start} – ${range.end})</h4>`;
-
+        <h4 class="page-title m-0">Juz ${juzId}</h4>
+        <p class="small mb-4">${range.info}</p>
+      `;
       paginated.forEach(v => {
         const name = surahNames[v.surah] || { transliteration: "" };
         const translation = englishVerses.find(e => e.chapter === v.surah && e.verse === v.ayah)?.text || "";
         content.innerHTML += `
-          <div class="mb-3 border-bottom pb-2">
-            <div class="text-muted small mb-1"><a href="?verse=${v.surah}:${v.ayah}" class="text-decoration-none">Surah ${v.surah}:${v.ayah} (${name.transliteration})</a></div>
+          <div class="mb-3 pb-2 verse-block">
+            <div class="text-muted small mb-1">
+             <a href="?verse=${v.surah}:${v.ayah}" class="text-decoration-none">
+              ${name.transliteration} <span class="badge badge-primary">${v.surah}:${v.ayah}</span>
+             </a>
+             ${renderAudioButton(v.surah, v.ayah)}
+            </div>
             <div class="fs-5 arabic">
              ${v.text}
              <button class="btn btn-sm small border-0 icon-copy" data-copy="${v.text}" onclick="copyTextFromData(this)"></button>
             </div>
             <div class="english">
              ${translation}
-             <button class="btn btn-sm small border-0 icon-copy" data-copy="${translation}" onclick="copyTextFromData(this)"></button>
+             <button class="btn btn-sm small border-0 icon-copy" data-copy="${translation.replace(/"/g, '&quot;')}" onclick="copyTextFromData(this)"></button>
             </div>
           </div>`;
       });
-
+    initializeCopyIcons();
+    initializeAudioIcons();
       content.innerHTML += `
         <nav class="mt-4 d-flex justify-content-between align-items-center">
           ${page > 1
@@ -263,8 +271,7 @@ if (viewParam === "juz" && urlParams.get("juz")) {
             : ""}
         </nav>`;
     });
-    initializeCopyIcons();
-  return;
+    return;
 }
 // === END OF QURANIC JUZ === //
 
