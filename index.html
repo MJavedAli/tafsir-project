@@ -178,7 +178,13 @@ function updateMainContentMargin() {
   }
 
 function updateThemeColor() {
-  const meta = document.getElementById('themeColorMeta');
+  let meta = document.getElementById('themeColorMeta');
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.name = 'theme-color';
+    meta.id = 'themeColorMeta';
+    document.head.appendChild(meta);
+  }
   const isDark = document.body.classList.contains('dark-theme') ||
     window.matchMedia('(prefers-color-scheme: dark)').matches;
   meta.setAttribute('content', isDark ? '#111827' : '#798eae');
@@ -190,6 +196,7 @@ function updateThemeColor() {
   const shouldUseDark = savedTheme === "dark" || (!savedTheme && systemPrefersDark);
   document.body.classList.toggle("dark-theme", shouldUseDark);
   updateThemeIcon();
+  updateThemeColor();
 
   // Toggle theme
   themeToggleBtn.addEventListener("click", () => {
