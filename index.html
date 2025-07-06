@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" href="/quran/assets/icons/icon-96.png" sizes="96x96"/>
     <link rel="icon" type="image/png" sizes="32x32" href="/quran/assets/icons/favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/quran/assets/icons/favicon-16.png">
+    <meta name="theme-color" content="#798eae" id="themeColorMeta">
     <meta name="apple-mobile-web-app-title" content="Al-Quran Al-Karim" />
     <link rel="manifest" href="/quran/site.webmanifest.json" />
     <title>Al-Qur'an Al-Karim</title>
@@ -176,6 +177,13 @@ function updateMainContentMargin() {
     themeText.textContent = isDark ? "Light Mode" : "Dark Mode";
   }
 
+function updateThemeColor() {
+  const meta = document.getElementById('themeColorMeta');
+  const isDark = document.body.classList.contains('dark-theme') ||
+    window.matchMedia('(prefers-color-scheme: dark)').matches;
+  meta.setAttribute('content', isDark ? '#111827' : '#798eae');
+}
+
   // Apply theme from storage or system preference
   const savedTheme = localStorage.getItem("theme");
   const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -188,6 +196,7 @@ function updateMainContentMargin() {
     const isDark = document.body.classList.toggle("dark-theme");
     localStorage.setItem("theme", isDark ? "dark" : "light");
     updateThemeIcon();
+    updateThemeColor();
   });
 
   // Sidebar toggle
