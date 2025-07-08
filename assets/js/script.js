@@ -981,7 +981,7 @@ ${verse.tafsir && verse.tafsir !== "(No tafsir available)" ? `
   } else {
     content.innerHTML = `<p>Verse not found.</p>`;
   }
-fetch("/quran/assets/data/scholarly.commentary.txt")
+fetch("/assets/data/scholarly.commentary.txt")
   .then(res => res.text())
   .then(text => {
     const commentaries = text.split("\n").map(line => {
