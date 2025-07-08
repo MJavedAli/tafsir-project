@@ -343,6 +343,30 @@ if (viewParam === "topics") {
 }
 // === END OF QURANIC TOPICS === //
 
+fetch("/quran/assets/data/scholarly.commentary.txt")
+  .then(res => res.text())
+  .then(text => {
+    const lines = text.trim().split("\n").reverse(); // Reverse for most recent first
+    const recent = lines.slice(0, 50); // Limit to 10
+
+    const html = recent.map(line => {
+      const [ch, vs, scholar] = line.split("|");
+      if (!ch || !vs || !scholar) return '';
+      return `<a href="?verse=${ch}:${vs}&view=commentary" class="text-decoration-none">
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mortarboard" viewBox="0 0 16 16">
+  <path d="M8.211 2.047a.5.5 0 0 0-.422 0l-7.5 3.5a.5.5 0 0 0 .025.917l7.5 3a.5.5 0 0 0 .372 0L14 7.14V13a1 1 0 0 0-1 1v2h3v-2a1 1 0 0 0-1-1V6.739l.686-.275a.5.5 0 0 0 .025-.917zM8 8.46 1.758 5.965 8 3.052l6.242 2.913z"/>
+  <path d="M4.176 9.032a.5.5 0 0 0-.656.327l-.5 1.7a.5.5 0 0 0 .294.605l4.5 1.8a.5.5 0 0 0 .372 0l4.5-1.8a.5.5 0 0 0 .294-.605l-.5-1.7a.5.5 0 0 0-.656-.327L8 10.466zm-.068 1.873.22-.748 3.496 1.311a.5.5 0 0 0 .352 0l3.496-1.311.22.748L8 12.46z"/>
+</svg> ${scholar.trim()} on Verse ${ch}:${vs}</a>`;
+    }).filter(Boolean).join("");
+    const container = document.getElementById("recent-commentary-list");
+    if (container) container.innerHTML = html || "<p class='text-muted'>No recent commentary found.</p>";
+  })
+  .catch(err => {
+    console.warn("Failed to load recent scholarly commentary:", err);
+    const container = document.getElementById("recent-commentary-list");
+    if (container) container.innerHTML = "<p class='text-danger'>Failed to load commentary list.</p>";
+  });
+
 // === BEGIN TAFSIR HANDLER === //
 if (viewParam === "tafsirs" && authorParam && !langParam) {
   content.innerHTML = `
@@ -397,8 +421,16 @@ if (viewParam === "tafsirs" && !authorParam) {
           <td>English</td>
         </tr>
       </tbody>
-    </table>`;
-  document.title = "Tafsir Index";
+    </table>
+   <div class="card mb-4">
+    <div class="card-body">
+    <div id="recent-commentary-list" class="d-flex flex-column gap-2">
+      <p class="text-muted">Loading recent commentary...</p>
+    </div>
+   </div>
+  </div>
+  `;
+  document.title = "Tafsir";
   return;
 }
 
@@ -860,7 +892,10 @@ let breadcrumbHtml = "";
         ${
           verseId !== null
             ? `<li class="breadcrumb-item active" aria-current="page">
-                 ${viewParam === 'tafsir' ? `Tafsir of Surah ${chapterId}:${verseId}` : `Verse ${chapterId}:${verseId}`}
+${viewParam === 'tafsir' ? `Tafsir of Surah ${chapterId}:${verseId}` :
+ viewParam === 'commentary' ? `Commentary of Surah ${chapterId}:${verseId}` :
+ `Verse ${chapterId}:${verseId}`}
+
                </li>`
             : ""
         }
@@ -917,6 +952,7 @@ ${verse.tafsir && verse.tafsir !== "(No tafsir available)" ? `
     <i class="bi bi-book"></i> Tafsir
   </a>
 ` : ""}
+           <span id="commentary-link-placeholder"></span>
           </div>
         </div>
       </div>
@@ -945,6 +981,32 @@ ${verse.tafsir && verse.tafsir !== "(No tafsir available)" ? `
   } else {
     content.innerHTML = `<p>Verse not found.</p>`;
   }
+fetch("/quran/assets/data/scholarly.commentary.txt")
+  .then(res => res.text())
+  .then(text => {
+    const commentaries = text.split("\n").map(line => {
+      const [ch, vs, scholar, source, ...rest] = line.split("|");
+      return {
+        chapter: parseInt(ch),
+        verse: parseInt(vs),
+        scholar: scholar?.trim(),
+        source: source?.trim(),
+        content: rest.join("|").trim()
+      };
+    });
+
+    const match = commentaries.find(c => c.chapter === chapterId && c.verse === verseId);
+    if (match) {
+      document.getElementById("commentary-link-placeholder").innerHTML = `
+          <a href="?verse=${match.chapter}:${match.verse}&view=commentary" class="text-decoration-none badge badge-primary">
+           ${match.scholar}
+          </a>
+      `;
+    }
+  })
+  .catch(err => {
+    console.warn("Commentary load failed:", err);
+  });
 } else {
           const chapterVerses = verses.filter(v => v.chapter === chapterId);
           if (chapterVerses.length === 0) {
