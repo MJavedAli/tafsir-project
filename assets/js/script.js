@@ -981,6 +981,7 @@ ${verse.tafsir && verse.tafsir !== "(No tafsir available)" ? `
   } else {
     content.innerHTML = `<p>Verse not found.</p>`;
   }
+
 fetch("/quran/assets/data/scholarly.commentary.txt")
   .then(res => res.text())
   .then(text => {
@@ -996,23 +997,27 @@ fetch("/quran/assets/data/scholarly.commentary.txt")
     });
 
     const match = commentaries.find(c => c.chapter === chapterId && c.verse === verseId);
-    if (match) {
-      // Wait until the span exists in the DOM
-      const interval = setInterval(() => {
-        const el = document.getElementById("commentary-link-placeholder");
-        if (el) {
-          el.innerHTML = `
-            <a href="?verse=${match.chapter}:${match.verse}&view=commentary" class="text-decoration-none badge badge-primary">
-              ${match.scholar}
-            </a>`;
-          clearInterval(interval);
-        }
-      }, 50);
-    }
+    console.log("🔎 Match:", match);
+
+    // Wait until the element is rendered
+    requestAnimationFrame(() => {
+      const placeholder = document.getElementById("commentary-link-placeholder");
+      if (placeholder && match) {
+        placeholder.innerHTML = `
+          <a href="?verse=${match.chapter}:${match.verse}&view=commentary" class="text-decoration-none badge badge-primary">
+            ${match.scholar}
+          </a>`;
+        console.log("✅ Commentary inserted.");
+      } else {
+        console.warn("⛔ Placeholder not found or no match.");
+      }
+    });
   })
   .catch(err => {
-    console.warn("Commentary load failed:", err);
+    console.warn("❌ Commentary load failed:", err);
   });
+
+
 } else {
           const chapterVerses = verses.filter(v => v.chapter === chapterId);
           if (chapterVerses.length === 0) {
