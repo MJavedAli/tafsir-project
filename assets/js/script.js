@@ -912,7 +912,6 @@ ${viewParam === 'tafsir' ? `Tafsir of Surah ${chapterId}:${verseId}` :
     const prev = verses.find(v => v.chapter === chapterId && v.verse === verseId - 1);
     const next = verses.find(v => v.chapter === chapterId && v.verse === verseId + 1);
     const name = surahNames[chapterId] || { transliteration: "", arabic: "" };
-
     content.innerHTML = `
       ${breadcrumbHtml}           
       <div class="card border-0">
@@ -937,9 +936,7 @@ ${viewParam === 'tafsir' ? `
     <span class="small fw-bold">Tafsir As-Sa'di:</span> <br>
     ${formatTafsir(verse.tafsir)}
   </p>
-` : `
-
-`}
+` : ''}
           <div class="btn-group mt-3">
            ${renderAudioButton(verse.chapter, verse.verse)}
            <button class="btn btn-sm small border-0 icon-copy"
@@ -961,14 +958,14 @@ ${verse.tafsir && verse.tafsir !== "(No tafsir available)" ? `
     <li class="page-item ${!prev ? 'disabled' : ''}">
       <a class="page-link d-flex align-items-center gap-2 px-3 rounded shadow-sm" href="?verse=${prev?.chapter}:${prev?.verse}" tabindex="-1">
         <i class="bi bi-arrow-left-circle"></i>
-        <span>Previous</span>
-        ${prev ? `<small class="text-muted">${prev.chapter}:${prev.verse}</small>` : ""}
+        <span>Prev</span>
+        ${prev ? `<small class="text-muted"><span class="badge badge-secondary rounded-fill">${prev.chapter}:${prev.verse}</span></small>` : ""}
       </a>
     </li>
     <li class="page-item ${!next ? 'disabled' : ''}">
       <a class="page-link d-flex align-items-center gap-2 px-3 rounded text-white shadow-sm" href="?verse=${next?.chapter}:${next?.verse}">
         <span>Next</span>
-        ${next ? `<small class="text-white-50">${next.chapter}:${next.verse}</small>` : ""}
+        ${next ? `<small><span class="badge badge-secondary rounded-fill">${next.chapter}:${next.verse}</span></small>` : ""}
         <i class="bi bi-arrow-right-circle"></i>
       </a>
     </li>
@@ -997,26 +994,17 @@ fetch("/quran/assets/data/scholarly.commentary.txt")
     });
 
     const match = commentaries.find(c => c.chapter === chapterId && c.verse === verseId);
-    console.log("🔎 Match:", match);
-
-    // Wait until the element is rendered
-    requestAnimationFrame(() => {
-      const placeholder = document.getElementById("commentary-link-placeholder");
-      if (placeholder && match) {
-        placeholder.innerHTML = `
+    if (match) {
+      document.getElementById("commentary-link-placeholder").innerHTML = `
           <a href="?verse=${match.chapter}:${match.verse}&view=commentary" class="text-decoration-none badge badge-primary">
-            ${match.scholar}
-          </a>`;
-        console.log("✅ Commentary inserted.");
-      } else {
-        console.warn("⛔ Placeholder not found or no match.");
-      }
-    });
+           ${match.scholar}
+          </a>
+      `;
+    }
   })
   .catch(err => {
-    console.warn("❌ Commentary load failed:", err);
+    console.warn("Commentary load failed:", err);
   });
-
 
 } else {
           const chapterVerses = verses.filter(v => v.chapter === chapterId);
