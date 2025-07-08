@@ -868,11 +868,32 @@ content.innerHTML = `
 }
 // === END VERSES RANGE eg. (?verse=1:2-3) === //
 
+function loadScholarCommentary() {
+  return fetch("/quran/assets/data/scholarly.commentary.txt")
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to load scholarly commentary file.");
+      return res.text();
+    })
+    .then(text => {
+      return text.split("\n").map(line => {
+        const [ch, vs, scholar, source, ...rest] = line.split("|");
+        return {
+          chapter: parseInt(ch),
+          verse: parseInt(vs),
+          scholar: scholar?.trim(),
+          source: source?.trim(),
+          content: rest.join("|").trim()
+        };
+      });
+    });
+}
+
 if (viewParam === "commentary") {
   loadScholarCommentary().then(commentaries => {
     const matching = commentaries.filter(c => c.chapter === chapterId && c.verse === verseId);
 
     if (matching.length > 0) {
+      const commentaryHtml = matching.map(c => `...`).join("");
       const commentaryHtml = matching.map(c => `
         <div class="mt-4 p-3 border rounded">
           <h5>Mufti: ${c.scholar}</h5>
