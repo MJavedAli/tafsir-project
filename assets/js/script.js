@@ -997,11 +997,17 @@ fetch("/quran/assets/data/scholarly.commentary.txt")
 
     const match = commentaries.find(c => c.chapter === chapterId && c.verse === verseId);
     if (match) {
-      document.getElementById("commentary-link-placeholder").innerHTML = `
-          <a href="?verse=${match.chapter}:${match.verse}&view=commentary" class="text-decoration-none badge badge-primary">
-           ${match.scholar}
-          </a>
-      `;
+      // Wait until the span exists in the DOM
+      const interval = setInterval(() => {
+        const el = document.getElementById("commentary-link-placeholder");
+        if (el) {
+          el.innerHTML = `
+            <a href="?verse=${match.chapter}:${match.verse}&view=commentary" class="text-decoration-none badge badge-primary">
+              ${match.scholar}
+            </a>`;
+          clearInterval(interval);
+        }
+      }, 50);
     }
   })
   .catch(err => {
