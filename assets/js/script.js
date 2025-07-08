@@ -893,7 +893,6 @@ if (viewParam === "commentary") {
     const matching = commentaries.filter(c => c.chapter === chapterId && c.verse === verseId);
 
     if (matching.length > 0) {
-      const commentaryHtml = matching.map(c => `...`).join("");
       const commentaryHtml = matching.map(c => `
         <div class="mt-4 p-3 border rounded">
           <h5>Mufti: ${c.scholar}</h5>
@@ -915,6 +914,7 @@ if (viewParam === "commentary") {
     }
   });
 }
+
 
 // === BEGIN QURAN surahs, verses, etc === //
 const [chapterIdStr, verseIdStr] = (verseParam || "").split(":");
