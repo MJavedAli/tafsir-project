@@ -868,6 +868,33 @@ content.innerHTML = `
 }
 // === END VERSES RANGE eg. (?verse=1:2-3) === //
 
+if (viewParam === "commentary") {
+  loadScholarCommentary().then(commentaries => {
+    const matching = commentaries.filter(c => c.chapter === chapterId && c.verse === verseId);
+
+    if (matching.length > 0) {
+      const commentaryHtml = matching.map(c => `
+        <div class="mt-4 p-3 border rounded">
+          <h5>Mufti: ${c.scholar}</h5>
+          <p class="mb-1 text-muted">Source: ${c.source}</p>   
+        </div>
+        <div class="english mt-3">${formatTafsir(c.content)}</div>
+      `).join("");
+
+      const container = document.createElement("div");
+      container.innerHTML = `
+        <h4 class="mt-4">💬 Scholarly Commentary</h4>
+        ${commentaryHtml}
+      `;
+      content.querySelector(".card-body").appendChild(container);
+    } else {
+      content.querySelector(".card-body").insertAdjacentHTML("beforeend", `
+        <div class="alert alert-warning mt-4">No commentary found for this verse.</div>
+      `);
+    }
+  });
+}
+
 // === BEGIN QURAN surahs, verses, etc === //
 const [chapterIdStr, verseIdStr] = (verseParam || "").split(":");
 const chapterId = parseInt(chapterIdStr);
