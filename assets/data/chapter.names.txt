@@ -14,7 +14,7 @@
 14|Ibrahim|Abraham|Meccan|ابراهيم
 15|Al-Hijr|The Rocky Tract|Meccan|الحجر
 16|An-Nahl|The Bee|Meccan|النحل
-17|Al-Isra’|The Night Journey|الإسراء
+17|Al-Isra’|The Night Journey|Meccan|الإسراء
 18|Al-Kahf|The Cave|Meccan|الكهف
 19|Maryam|Mary|Meccan|مريم
 20|Ta-Ha|Ta-Ha|Meccan|طه

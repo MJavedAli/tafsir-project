@@ -214,7 +214,7 @@ body {
 }
 .menu-list .menu-link:is(:hover, .active) {
   color: #fff;
-  background: var(--color-hover-primary);
+  background: #798eae;
   fill: #fff;
 }
 .sidebar .sidebar-footer {
@@ -503,8 +503,8 @@ body.dark-theme .harakat-track {
   direction: rtl;
   line-height: 1.3;
 }
- .badge, .badge, .ayah-link, .ayam-num {
-   background-color: var(--color-hover-primary) !important;
+ .badge, .badge, .ayah-link, .ayah-num {
+   background-color: #798eae !important;
    color: var(--color-white) !important;
  }
  .icon-audio, .icon-copy {
@@ -729,8 +729,8 @@ body.dark-theme .harakat-track {
    background-color: var(--color-hover-primary) !important;
    color: var(--color-text-primary) !important;
  }
- .badge, .badge, .ayah-link, .ayam-num {
-   background-color: var(--color-hover-primary) !important;
+ .badge, .badge, .ayah-link, .ayah-num {
+   background-color: #798eae !important;
    color: var(--color-text-primary) !important;
  }
  .icon-audio, .icon-copy {
