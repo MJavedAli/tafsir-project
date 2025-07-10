@@ -343,29 +343,85 @@ if (viewParam === "topics") {
 }
 // === END OF QURANIC TOPICS === //
 
-fetch("/quran/assets/data/scholarly.commentary.txt")
-  .then(res => res.text())
-  .then(text => {
-    const lines = text.trim().split("\n").reverse(); // Reverse for most recent first
-    const recent = lines.slice(0, 50); // Limit to 10
+// === BEGIN WIDGET RECENT SCHOLAR COMMENTARIES === //
+let currentCommentaryPage = 1;
+const commentaryPerPage = 15;
+let allCommentaries = [];
 
-    const html = recent.map(line => {
-      const [ch, vs, scholar] = line.split("|");
-      if (!ch || !vs || !scholar) return '';
-      return `<a href="?verse=${ch}:${vs}&view=commentary" class="text-decoration-none">
-               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mortarboard" viewBox="0 0 16 16">
-  <path d="M8.211 2.047a.5.5 0 0 0-.422 0l-7.5 3.5a.5.5 0 0 0 .025.917l7.5 3a.5.5 0 0 0 .372 0L14 7.14V13a1 1 0 0 0-1 1v2h3v-2a1 1 0 0 0-1-1V6.739l.686-.275a.5.5 0 0 0 .025-.917zM8 8.46 1.758 5.965 8 3.052l6.242 2.913z"/>
-  <path d="M4.176 9.032a.5.5 0 0 0-.656.327l-.5 1.7a.5.5 0 0 0 .294.605l4.5 1.8a.5.5 0 0 0 .372 0l4.5-1.8a.5.5 0 0 0 .294-.605l-.5-1.7a.5.5 0 0 0-.656-.327L8 10.466zm-.068 1.873.22-.748 3.496 1.311a.5.5 0 0 0 .352 0l3.496-1.311.22.748L8 12.46z"/>
-</svg> ${scholar.trim()} on Verse ${ch}:${vs}</a>`;
-    }).filter(Boolean).join("");
-    const container = document.getElementById("recent-commentary-list");
-    if (container) container.innerHTML = html || "<p class='text-muted'>No recent commentary found.</p>";
-  })
-  .catch(err => {
-    console.warn("Failed to load recent scholarly commentary:", err);
-    const container = document.getElementById("recent-commentary-list");
-    if (container) container.innerHTML = "<p class='text-danger'>Failed to load commentary list.</p>";
-  });
+function renderCommentaryPage(page) {
+  const container = document.getElementById("recent-commentary-list");
+  const pageInfo = document.getElementById("commentary-page-info");
+
+  if (!container || !pageInfo) return;
+
+  const start = (page - 1) * commentaryPerPage;
+  const end = start + commentaryPerPage;
+  const items = allCommentaries.slice(start, end);
+
+  container.innerHTML = items.map(item => `
+    <a href="?verse=${item.chapter}:${item.verse}&sh=${item.shaykh}" class="text-decoration-none d-block my-1">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mortarboard me-1" viewBox="0 0 16 16">
+        <path d="M8.211 2.047a.5.5 0 0 0-.422 0l-7.5 3.5a.5.5 0 0 0 .025.917l7.5 3a.5.5 0 0 0 .372 0L14 7.14V13a1 1 0 0 0-1 1v2h3v-2a1 1 0 0 0-1-1V6.739l.686-.275a.5.5 0 0 0 .025-.917zM8 8.46 1.758 5.965 8 3.052l6.242 2.913z"/>
+        <path d="M4.176 9.032a.5.5 0 0 0-.656.327l-.5 1.7a.5.5 0 0 0 .294.605l4.5 1.8a.5.5 0 0 0 .372 0l4.5-1.8a.5.5 0 0 0 .294-.605l-.5-1.7a.5.5 0 0 0-.656-.327L8 10.466zm-.068 1.873.22-.748 3.496 1.311a.5.5 0 0 0 .352 0l3.496-1.311.22.748L8 12.46z"/>
+      </svg>
+      ${item.scholar} on Verse ${item.chapter}:${item.verse}
+    </a>
+  `).join("");
+
+  pageInfo.textContent = `Page ${page} of ${Math.ceil(allCommentaries.length / commentaryPerPage)}`;
+  document.getElementById("prev-page").disabled = page === 1;
+  document.getElementById("next-page").disabled = end >= allCommentaries.length;
+}
+
+function loadCommentaries() {
+  fetch("/quran/assets/data/scholarly.commentary.txt")
+    .then(res => res.text())
+    .then(text => {
+      const lines = text.trim().split("\n").reverse();
+      allCommentaries = lines
+        .map(line => {
+          const [ch, vs, scholar] = line.split("|");
+          if (!ch || !vs || !scholar) return null;
+          const shaykhSlug = scholar.trim().toLowerCase().replace(/[^a-z]+/g, "-");
+          return {
+            chapter: ch,
+            verse: vs,
+            scholar: scholar.trim(),
+            shaykh: shaykhSlug
+          };
+        })
+        .filter(Boolean);
+
+      // Initial render
+      renderCommentaryPage(currentCommentaryPage);
+
+      const prevBtn = document.getElementById("prev-page");
+      const nextBtn = document.getElementById("next-page");
+
+      if (prevBtn && nextBtn) {
+        prevBtn.addEventListener("click", () => {
+          if (currentCommentaryPage > 1) {
+            currentCommentaryPage--;
+            renderCommentaryPage(currentCommentaryPage);
+          }
+        });
+
+        nextBtn.addEventListener("click", () => {
+          const total = Math.ceil(allCommentaries.length / commentaryPerPage);
+          if (currentCommentaryPage < total) {
+            currentCommentaryPage++;
+            renderCommentaryPage(currentCommentaryPage);
+          }
+        });
+      }
+    })
+    .catch(err => {
+      console.warn("Failed to load commentary list:", err);
+      const container = document.getElementById("recent-commentary-list");
+      if (container) container.innerHTML = "<p class='text-danger'>Failed to load commentary list.</p>";
+    });
+}
+// === END OF WIDGET RECENT SCHOLAR COMMENTARIES === //
 
 // === BEGIN TAFSIR HANDLER === //
 if (viewParam === "tafsirs" && authorParam && !langParam) {
@@ -422,13 +478,14 @@ if (viewParam === "tafsirs" && !authorParam) {
         </tr>
       </tbody>
     </table>
-   <div class="card mb-4">
-    <div class="card-body">
-    <div id="recent-commentary-list" class="d-flex flex-column gap-2">
-      <p class="text-muted">Loading recent commentary...</p>
-    </div>
-   </div>
+
+  <div class="card card-body" id="recent-commentary-list"></div>
+  <div class="pagination-container text-center mt-3">
+    <button id="prev-page" class="btn btn-sm btn-outline-secondary me-2">Previous</button>
+    <span id="commentary-page-info"></span>
+    <button id="next-page" class="btn btn-sm btn-outline-secondary ms-2">Next</button>
   </div>
+
   `;
   document.title = "Tafsir";
   return;
@@ -868,37 +925,45 @@ content.innerHTML = `
 }
 // === END VERSES RANGE eg. (?verse=1:2-3) === //
 
-function loadScholarCommentary() {
-  return fetch("/quran/assets/data/scholarly.commentary.txt")
-    .then(res => {
-      if (!res.ok) throw new Error("Failed to load scholarly commentary file.");
-      return res.text();
-    })
+function loadScholarCommentary(filePath = "/quran/assets/data/scholarly.commentary.txt") {
+  return fetch(filePath)
+    .then(res => res.text())
     .then(text => {
-      return text.split("\n").map(line => {
-        const [ch, vs, scholar, source, ...rest] = line.split("|");
-        return {
-          chapter: parseInt(ch),
-          verse: parseInt(vs),
-          scholar: scholar?.trim(),
-          source: source?.trim(),
-          content: rest.join("|").trim()
-        };
-      });
+      return text
+        .split("\n")
+        .map(line => {
+          const [chapter, verse, scholar, source, produced, ...contentParts] = line.split("|");
+          return {
+            chapter: parseInt(chapter),
+            verse: parseInt(verse),
+            scholar: scholar?.trim(),
+            source: source?.trim(),
+            produced: produced?.trim(),
+            content: contentParts.join("|").trim()
+          };
+        });
     });
 }
-
-if (viewParam === "commentary") {
+function slugify(name) {
+  return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
+}
+const shaykhParam = urlParams.get("sh");
+if (shaykhParam) {
   loadScholarCommentary().then(commentaries => {
-    const matching = commentaries.filter(c => c.chapter === chapterId && c.verse === verseId);
+    const matching = commentaries.filter(c =>
+      c.chapter === chapterId &&
+      c.verse === verseId &&
+      slugify(c.scholar) === shaykhParam
+    );
 
     if (matching.length > 0) {
       const commentaryHtml = matching.map(c => `
         <div class="mt-4 p-3 border rounded">
-          <h5>Mufti: ${c.scholar}</h5>
-          <p class="mb-1 text-muted">Source: ${c.source}</p>   
+          <h5>Mufti/Shaykh: ${c.scholar}</h5>
+          ${c.source ? `<p class="mb-1 text-muted">Source: ${c.source}</p>` : ""}
+          ${c.produced ? `<p class="mb-1 text-muted">Produced/Translated by: ${c.produced}</p>` : ""} <hr>
+          <div class="english mt-3">${formatTafsir(c.content)}</div>
         </div>
-        <div class="english mt-3">${formatTafsir(c.content)}</div>
       `).join("");
 
       const container = document.createElement("div");
@@ -906,15 +971,14 @@ if (viewParam === "commentary") {
         <h4 class="mt-4">💬 Scholarly Commentary</h4>
         ${commentaryHtml}
       `;
-      content.querySelector(".card-body").appendChild(container);
+      content.querySelector(".card").appendChild(container);
     } else {
-      content.querySelector(".card-body").insertAdjacentHTML("beforeend", `
-        <div class="alert alert-warning mt-4">No commentary found for this verse.</div>
+      content.querySelector(".card").insertAdjacentHTML("beforeend", `
+        <div class="alert alert-warning mt-4">No commentary found for this scholar.</div>
       `);
     }
   });
 }
-
 
 // === BEGIN QURAN surahs, verses, etc === //
 const [chapterIdStr, verseIdStr] = (verseParam || "").split(":");
@@ -960,13 +1024,14 @@ ${viewParam === 'tafsir' ? `Tafsir of Surah ${chapterId}:${verseId}` :
     const prev = verses.find(v => v.chapter === chapterId && v.verse === verseId - 1);
     const next = verses.find(v => v.chapter === chapterId && v.verse === verseId + 1);
     const name = surahNames[chapterId] || { transliteration: "", arabic: "" };
+    const shareHTML = generateSocialShareHTML(verse.chapter, verse.verse);
     content.innerHTML = `
       ${breadcrumbHtml}           
       <div class="card border-0">
         <div class="card-body">
           <h3 class="surah-name-arabic me-2 text-center fs-1">surah${String(verse.chapter).padStart(3, '0')}</h3>
           <h3 class="text-center">${name.transliteration} (${name.english})</h3>
-          <p><a role="button" href="?verse=${verse.chapter}:${verse.verse}" class="text-decoration-none btn btn-sm ayah-link">${verse.chapter}:${verse.verse}</a></p>
+          <p><a role="button" href="?verse=${verse.chapter}:${verse.verse}" class="text-decoration-none btn btn-sm ayah-link">${verse.chapter}:${verse.verse}</a> ${renderAudioButton(verse.chapter, verse.verse)}</p>
           <p class="mb-1 arabic" dir="rtl">${verse.arabic}
             <button class="btn btn-sm small border-0 icon-copy"
             data-copy="${verse.arabic.replace(/"/g, '&quot;')}"
@@ -979,25 +1044,20 @@ ${viewParam === 'tafsir' ? `Tafsir of Surah ${chapterId}:${verseId}` :
             onclick="copyTextFromData(this)">
            </button>
           </p>
-${viewParam === 'tafsir' ? `
-  <p class="mb-1 mt-3 english">
-    <span class="small fw-bold">Tafsir As-Sa'di:</span> <br>
-    ${formatTafsir(verse.tafsir)}
-  </p>
-` : ''}
-          <div class="btn-group mt-3">
-           ${renderAudioButton(verse.chapter, verse.verse)}
-           <button class="btn btn-sm small border-0 icon-copy"
-            data-copy="${location.href}"
-            onclick="copyTextFromData(this)">
-            <span class="ayah-url-copy">Ayah URL</span>
-           </button>
-${verse.tafsir && verse.tafsir !== "(No tafsir available)" ? `
-  <a href="?verse=${verse.chapter}:${verse.verse}&view=tafsir" class="btn btn-sm border-0">
-    <i class="bi bi-book"></i> Tafsir
-  </a>
-` : ""}
-           <span id="commentary-link-placeholder"></span>
+     
+        <div class="d-flex justify-content-between mt-3 mb-3">          
+           <div>
+            <span id="commentary-link-placeholder"></span>
+           </div>
+           <div>
+            <button class="btn btn-sm border-0" type="button" data-bs-toggle="collapse" data-bs-target="#${verse.chapter}-${verse.verse}" aria-expanded="false" aria-controls="${verse.chapter}-${verse.verse}">
+             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share" viewBox="0 0 16 16"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5m-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3"/></svg>
+            </button>
+           </div>
+         </div>
+        ${shareHTML}
+    </div>
+
           </div>
         </div>
       </div>
@@ -1041,13 +1101,15 @@ fetch("/quran/assets/data/scholarly.commentary.txt")
       };
     });
 
-    const match = commentaries.find(c => c.chapter === chapterId && c.verse === verseId);
-    if (match) {
-      document.getElementById("commentary-link-placeholder").innerHTML = `
-          <a href="?verse=${match.chapter}:${match.verse}&view=commentary" class="text-decoration-none badge badge-primary">
-           ${match.scholar}
-          </a>
-      `;
+    // Filter all scholars for current verse
+    const matching = commentaries.filter(c => c.chapter === chapterId && c.verse === verseId);
+    if (matching.length > 0) {
+      const links = matching.map(c => `
+        <a href="?verse=${c.chapter}:${c.verse}&sh=${slugify(c.scholar)}" class="badge text-bg-info text-decoration-none me-2">
+          ${c.scholar}
+        </a>
+      `).join(" ");
+      document.getElementById("commentary-link-placeholder").innerHTML = links;
     }
   })
   .catch(err => {
@@ -1060,25 +1122,50 @@ fetch("/quran/assets/data/scholarly.commentary.txt")
             content.innerHTML = `<p>Chapter not found.</p>`;
             return;
           }
-
           const verseCount = chapterVerses.length;
           const name = surahNames[chapterId] || { arabic: "", english: "" };
           const pageParam = parseInt(urlParams.get("page")) || 1;
           const perPage = 20;
           const totalPages = Math.ceil(verseCount / perPage);
           const paginatedVerses = chapterVerses.slice((pageParam - 1) * perPage, pageParam * perPage);
+
+fetch("/quran/assets/data/scholarly.commentary.txt")
+  .then(res => res.text())
+  .then(txt => {
+    const commentaryLines = txt.split("\n").filter(Boolean);
+    const commentaryMap = new Map();
+    commentaryLines.forEach(line => {
+      const [ch, vs, scholar] = line.split("|");
+      const key = `${parseInt(ch)}:${parseInt(vs)}`;
+      if (!commentaryMap.has(key)) {
+        commentaryMap.set(key, new Set());
+      }
+      commentaryMap.get(key).add(scholar.trim());
+    });
+
           const chapterHtml = paginatedVerses.map(v => {
           const pad = (n) => String(n).padStart(3, '0');
           const audioURL = `https://everyayah.com/data/Nasser_Alqatami_128kbps/${pad(v.chapter)}${pad(v.verse)}.mp3`;
+          const shareHTML = generateSocialShareHTML(v.chapter, v.verse);
 
   let basmalahHTML = "";
   if (v.basmalah && v.basmalah.trim() !== "") {
     basmalahHTML = '<p class="mb-5 arabic fw-semibold text-center">' + v.basmalah + '</p>';
   }
+
+      const key = `${v.chapter}:${v.verse}`;
+      if (commentaryMap.has(key)) {
+        const scholars = Array.from(commentaryMap.get(key));
+        commentaryLinks = scholars.map(name => {
+          const slug = slugify(name);
+          return `<a href="?verse=${key}&sh=${slug}" class="text-decoration-none me-1 btn btn-sm border-0"><span class="badge badge-primary">${name}</span></a>`;
+        }).join(" ");
+      }
+
   return `
     <div class="verse-block p-0 mb-0 mt-3">
       ${basmalahHTML} 
-      <p><a role="button" href="?verse=${v.chapter}:${v.verse}" class="text-decoration-none btn btn-sm ayah-link">         ${v.chapter}:${v.verse}</a>
+      <p><a role="button" href="?verse=${v.chapter}:${v.verse}" class="text-decoration-none btn btn-sm ayah-link">         ${v.chapter}:${v.verse}</a> ${renderAudioButton(v.chapter, v.verse)}
       </p>
       <p class="mb-3 arabic" dir="rtl">${v.arabic}
            <button class="btn btn-sm small border-0 icon-copy"
@@ -1093,14 +1180,17 @@ fetch("/quran/assets/data/scholarly.commentary.txt")
             onclick="copyTextFromData(this)">
            </button>
       </p>
-        <div class="btn-group mt-3 mb-3">
-           ${renderAudioButton(v.chapter, v.verse)}
-           <button class="btn btn-sm small border-0 icon-copy"
-            data-copy="${location.origin}${location.pathname}?verse=${v.chapter}:${v.verse}"
-            onclick="copyTextFromData(this)">
-             <span class="ayah-url-copy">Ayah URL</span>
-           </button>
-        </div>
+        <div class="d-flex justify-content-between mt-3 mb-3">          
+           <div>
+            ${commentaryLinks}
+           </div>
+           <div>
+            <button class="btn btn-sm border-0" type="button" data-bs-toggle="collapse" data-bs-target="#${v.chapter}-${v.verse}" aria-expanded="false" aria-controls="${v.chapter}-${v.verse}">
+             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share" viewBox="0 0 16 16"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5m-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3"/></svg>
+            </button>
+           </div>
+         </div>
+        ${shareHTML}
     </div>
   `;
 }).join("");
@@ -1128,6 +1218,7 @@ let paginationHtml = `
           document.title = `Surah ${name.transliteration}`;
           initializeCopyIcons();
           initializeAudioIcons();
+
 const svgContainer = document.getElementById(`surah-svg-${chapterId}`);
 fetch(`/quran/assets/svg/${chapterId}.svg`)
   .then(res => {
@@ -1149,7 +1240,7 @@ fetch(`/quran/assets/svg/${chapterId}.svg`)
     console.error(err);
     svgContainer.textContent = `#${chapterId}`;
   });
-
+  });
         }
       } else {
         const chapters = [...new Set(
@@ -1173,16 +1264,17 @@ chapters.forEach(ch => {
   col.className = "col-12 col-sm-6 col-lg-4 d-flex";
   col.innerHTML = `
   <div class="card flex-fill h-100 shadow-sm card-hover">
-    <a href="?verse=${ch}" class="card-body text-decoration-none p-0 m-0" title="${name.transliteration}">
+    <a href="?verse=${ch}" class="card-body text-decoration-none p-0 m-0" title="Surah ${name.transliteration}">
       <div class="d-flex">
-        <div class="pe-2 w-100">
-          <h5 class="card-title mb-1 small fw-bold"><span class="badge badge-primary rounded-fill">${ch}</span> ${name.transliteration}</h5>
-          <p class="mb-0 small en-verse">${name.english || ""}</p>
-          <p class="mb-0 m-0 p-0 small text-muted">${name.type}</p>
+        <div class="pe-3 w-100">
+          <p class="badge badge-primary rounded-fill">${ch}</p>
+          <h5 class="m=0 p-0 h6 fw-bold">${name.transliteration}</h5>
+          <p class="mb-0 m-0 p-0 small en-verse">${name.english || ""}</p>
         </div>
-        <div class="ps-2 flex-shrink-0 align-self-center text-center">
+        <div class="ps-1 flex-shrink-0 align-self-center text-center justify-content-center">
          <div id="surah-svg-${ch}"></div>
          <p class="text-muted small verse-count">${verseCount} Ayah${verseCount > 1 ? 's' : ''}</p>
+         <p class="small text-muted m-0 p-0 d-none">${name.type}</p>
         </div>
       </div>
     </a>
@@ -1324,5 +1416,46 @@ function renderAudioButton(chapter, verse) {
   return `
     <audio id="${id}" src="${src}"></audio>
     <button class="btn btn-sm border-0 play icon-audio" onclick="toggleAudio('${id}', this)"></button>
+  `;
+}
+
+function generateSocialShareHTML(chapter, verse) {
+  const shareUrl = `${location.origin}${location.pathname}?verse=${chapter}:${verse}`;
+  const encodedUrl = encodeURIComponent(shareUrl);
+
+  return `
+<div class="collapse mb-2" id="${chapter}-${verse}">
+  <div class="card card-body">
+    <div>
+      <h6>Share on:</h6>
+
+      <a class="btn btn-primary btn-sm mt-1 small" href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}" target="_blank" rel="noopener">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-facebook" viewBox="0 0 16 16"><path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951"/></svg> Facebook 
+      </a>
+
+      <a class="btn btn-primary btn-sm mt-1 small" href="https://twitter.com/intent/tweet?url=${encodedUrl}" target="_blank" rel="noopener">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-twitter-x" viewBox="0 0 16 16"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z"/></svg> Twitter
+      </a>
+
+      <a class="btn btn-primary btn-sm mt-1 small" href="https://www.threads.net/intent/post?url=${encodedUrl}" target="_blank" rel="noopener">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-threads" viewBox="0 0 16 16"><path d="M6.321 6.016c-.27-.18-1.166-.802-1.166-.802.756-1.081 1.753-1.502 3.132-1.502.975 0 1.803.327 2.394.948s.928 1.509 1.005 2.644q.492.207.905.484c1.109.745 1.719 1.86 1.719 3.137 0 2.716-2.226 5.075-6.256 5.075C4.594 16 1 13.987 1 7.994 1 2.034 4.482 0 8.044 0 9.69 0 13.55.243 15 5.036l-1.36.353C12.516 1.974 10.163 1.43 8.006 1.43c-3.565 0-5.582 2.171-5.582 6.79 0 4.143 2.254 6.343 5.63 6.343 2.777 0 4.847-1.443 4.847-3.556 0-1.438-1.208-2.127-1.27-2.127-.236 1.234-.868 3.31-3.644 3.31-1.618 0-3.013-1.118-3.013-2.582 0-2.09 1.984-2.847 3.55-2.847.586 0 1.294.04 1.663.114 0-.637-.54-1.728-1.9-1.728-1.25 0-1.566.405-1.967.868ZM8.716 8.19c-2.04 0-2.304.87-2.304 1.416 0 .878 1.043 1.168 1.6 1.168 1.02 0 2.067-.282 2.232-2.423a6.2 6.2 0 0 0-1.528-.161"/></svg> Threads
+      </a>
+
+      <a class="btn btn-primary btn-sm mt-1 small" href="https://t.me/share/url?url=${encodedUrl}" target="_blank" rel="noopener">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-telegram" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.287 5.906q-1.168.486-4.666 2.01-.567.225-.595.442c-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294q.39.01.868-.32 3.269-2.206 3.374-2.23c.05-.012.12-.026.166.016s.042.12.037.141c-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8 8 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.284.194.568.387.936.629q.14.092.27.187c.331.236.63.448.997.414.214-.02.435-.22.547-.82.265-1.417.786-4.486.906-5.751a1.4 1.4 0 0 0-.013-.315.34.34 0 0 0-.114-.217.53.53 0 0 0-.31-.093c-.3.005-.763.166-2.984 1.09"/></svg> Telegram
+      </a>
+
+      <a class="btn btn-primary btn-sm mt-1 small" href="https://wa.me/?text=${encodedUrl}" target="_blank" rel="noopener">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/></svg> WhatsApp
+      </a>
+
+      <button class="btn border-0 icon-copy"
+        data-copy="${shareUrl}"
+        onclick="copyTextFromData(this)">
+        <span class="ayah-url-copy">Ayah URL</span>
+      </button>
+    </div>
+  </div>
+</div>
   `;
 }
