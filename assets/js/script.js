@@ -488,6 +488,7 @@ if (viewParam === "tafsirs" && !authorParam) {
 
   `;
   document.title = "Tafsir";
+  loadCommentaries(); 
   return;
 }
 
