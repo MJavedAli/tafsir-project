@@ -1155,6 +1155,7 @@ fetch("/quran/assets/data/scholarly.commentary.txt")
   }
 
       const key = `${v.chapter}:${v.verse}`;
+      let commentaryLinks = "";
       if (commentaryMap.has(key)) {
         const scholars = Array.from(commentaryMap.get(key));
         commentaryLinks = scholars.map(name => {
