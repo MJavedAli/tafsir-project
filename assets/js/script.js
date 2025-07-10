@@ -1096,7 +1096,7 @@ fetch("/quran/assets/data/scholarly.commentary.txt")
         <div class="btn-group mt-3 mb-3">
            ${renderAudioButton(v.chapter, v.verse)}
            <button class="btn btn-sm small border-0 icon-copy"
-            data-copy="${location.href}"
+            data-copy="${location.origin}${location.pathname}?verse=${v.chapter}:${v.verse}"
             onclick="copyTextFromData(this)">
              <span class="ayah-url-copy">Ayah URL</span>
            </button>
