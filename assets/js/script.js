@@ -9,7 +9,15 @@ function normalizeArabic(str) {
     .replace(/\s+/g, ' ')
     .trim();
 }
-
+function formatTafsir(text) {
+  // Add basic formatting rules here
+  return text
+    .replace(/\n/g, "<br>")               // Convert newlines to <br>
+    .replace(/“([^”]+)”/g, '<b>"$1"</b>')  // Bold quoted text
+    .replace(/‘([^’]+)’/g, '<b>\'$1\'</b>') // Bold single quotes
+    .replace(/(→|<-|=>)/g, '<b>$1</b>')    // Highlight arrows
+    .replace(/\*(.*?)\*/g, '<b>$1</b>');   // Bold *text*
+}
   function handleSearch(event) {
     event.preventDefault();
     const query = document.getElementById("searchInput").value.trim();
@@ -18,9 +26,16 @@ function normalizeArabic(str) {
     }
   }
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const verseParam = urlParams.get("verse");
-  const viewParam = urlParams.get("view");
+const urlParams = new URLSearchParams(window.location.search);
+const viewParam = urlParams.get("view");
+const verseParam = urlParams.get("verse");
+const shaykhParam = urlParams.get("sh");
+
+const [chapterIdStr, verseIdStr] = (verseParam || "").split(":");
+const chapterId = parseInt(chapterIdStr);
+const verseId = verseIdStr ? parseInt(verseIdStr) : null;
+
+
   const searchQuery = urlParams.get("q")?.toLowerCase();
   const content = document.getElementById("content");
   const arabicURL = `/quran/assets/data/quran.txt?v=${Date.now()}`;
@@ -130,7 +145,6 @@ const highlight = (text, keyword) => {
 };
 
 const filterType = localStorage.getItem("quran_filter_type") || "all";
-
 const urlParams = new URLSearchParams(window.location.search);
 const viewParam = urlParams.get("view");
 const authorParam = urlParams.get("author");
@@ -364,7 +378,7 @@ function renderCommentaryPage(page) {
         <path d="M8.211 2.047a.5.5 0 0 0-.422 0l-7.5 3.5a.5.5 0 0 0 .025.917l7.5 3a.5.5 0 0 0 .372 0L14 7.14V13a1 1 0 0 0-1 1v2h3v-2a1 1 0 0 0-1-1V6.739l.686-.275a.5.5 0 0 0 .025-.917zM8 8.46 1.758 5.965 8 3.052l6.242 2.913z"/>
         <path d="M4.176 9.032a.5.5 0 0 0-.656.327l-.5 1.7a.5.5 0 0 0 .294.605l4.5 1.8a.5.5 0 0 0 .372 0l4.5-1.8a.5.5 0 0 0 .294-.605l-.5-1.7a.5.5 0 0 0-.656-.327L8 10.466zm-.068 1.873.22-.748 3.496 1.311a.5.5 0 0 0 .352 0l3.496-1.311.22.748L8 12.46z"/>
       </svg>
-      Sh. ${item.scholar} on Verse ${item.chapter}:${item.verse}
+      ${item.scholar} on Verse ${item.chapter}:${item.verse}
     </a>
   `).join("");
 
@@ -381,7 +395,7 @@ function loadCommentaries() {
       allCommentaries = lines
         .map(line => {
           const [ch, vs, scholar] = line.split("|");
-          if (!ch || !vs || !scholar) return null;
+          if (!ch || !vs || !scholar) return; 
           const shaykhSlug = scholar.trim().toLowerCase().replace(/[^a-z]+/g, "-");
           return {
             chapter: ch,
@@ -424,6 +438,37 @@ function loadCommentaries() {
 // === END OF WIDGET RECENT SCHOLAR COMMENTARIES === //
 
 // === BEGIN TAFSIR HANDLER === //
+const tafsirSources = {
+  "kathir-ar": { type: "json", path: "/quran/assets/data/tafsirs/ibn-kathir-ar" },
+  "qurtubi-ar": { type: "json", path: "/quran/assets/data/tafsirs/qurtubi-ar" },
+  "baghawi-ar": { type: "json", path: "/quran/assets/data/tafsirs/baghawi-ar" },
+  "tabari-ar": { type: "json", path: "/quran/assets/data/tafsirs/tabari-ar" },
+  "saadi-en": { type: "txt", file: "/quran/assets/data/tafsir.saadi.txt" },
+  "saadi-ar": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ar" },
+  "saadi-ru": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ru" },
+  "kathir-en": { type: "json", path: "/quran/assets/data/tafsirs/ibn-kathir" }
+};
+
+function formatTafsir(text) {
+  if (!text) return "";
+  return text
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '')
+    .replace(/\\t/g, '')
+    .replace(/\\\\/g, '\\')
+    .replace(/\\"/g, '"')
+    .replace(/\\'/g, "'")
+    .replace(/\n+/g, "<br><br>")
+    .replace(/"([^"]+?\.)"/g, '<b>"$1"</b>')
+    .replace(/\n([^\n]{3,}[\u0600-\u06FF]+[^\n]{3,})\n/g, '<br><br><b>$1</b><br><br>')
+    .replace(/#/g, "<br><br>")
+    .replace(/\*([^*]+)\*/g, '“<strong>$1</strong>”')
+    .replace(/\\n/g, "\n")
+    .replace(/\\+"/g, '"')
+    .replace(/\\\\/g, "\\")
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/\n/g, "<br><br>");
+}
 if (viewParam === "tafsirs" && authorParam && !langParam) {
   content.innerHTML = `
     <div class="alert alert-light mt-4">
@@ -486,37 +531,11 @@ if (viewParam === "tafsirs" && !authorParam) {
     <button id="next-page" class="btn btn-sm btn-outline-secondary ms-2">Next</button>
   </div>
 
-  `;
+  </div>
+   `;
   document.title = "Tafsir";
   loadCommentaries(); 
   return;
-}
-
-const tafsirSources = {
-  "saadi-en": { type: "txt", file: "/quran/assets/data/tafsir.saadi.txt" },
-  "saadi-ar": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ar" },
-  "saadi-ru": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ru" },
-  "kathir-en": { type: "json", path: "/quran/assets/data/tafsirs/ibn-kathir" }
-};
-
-function formatTafsir(text) {
-  if (!text) return "";
-  return text
-    .replace(/\\n/g, '\n')
-    .replace(/\\r/g, '')
-    .replace(/\\t/g, '')
-    .replace(/\\\\/g, '\\')
-    .replace(/\\"/g, '"')
-    .replace(/\\'/g, "'")
-    .replace(/\n+/g, "<br><br>")
-    .replace(/"([^"]+?\.)"/g, '<b>"$1"</b>')
-    .replace(/\n([^\n]{3,}[\u0600-\u06FF]+[^\n]{3,})\n/g, '<br><br><b>$1</b><br><br>')
-    .replace(/#/g, "<br><br>")
-    .replace(/\*([^*]+)\*/g, '“<strong>$1</strong>”')
-    .replace(/\\n/g, "\n")
-    .replace(/\\+"/g, '"')
-    .replace(/\\\\/g, "\\")
-    .replace(/\n/g, "<br><br>");
 }
 
 if (viewParam === "tafsirs" && authorParam && langParam) {
@@ -748,7 +767,7 @@ if (viewParam === "tafsirs" && authorParam && langParam) {
 }
 // === END OF TAFSIR HANDLER === //
 
-// === BEGIN FILTED === //
+// === BEGIN FILTER === //
 if (!verseParam && !searchQuery) {
   const filterContainer = document.createElement("div");
   filterContainer.className = "mb-5 d-flex gap-2 flex-wrap align-items-center";
@@ -926,65 +945,7 @@ content.innerHTML = `
 }
 // === END VERSES RANGE eg. (?verse=1:2-3) === //
 
-function loadScholarCommentary(filePath = "/quran/assets/data/scholarly.commentary.txt") {
-  return fetch(filePath)
-    .then(res => res.text())
-    .then(text => {
-      return text
-        .split("\n")
-        .map(line => {
-          const [chapter, verse, scholar, source, produced, ...contentParts] = line.split("|");
-          return {
-            chapter: parseInt(chapter),
-            verse: parseInt(verse),
-            scholar: scholar?.trim(),
-            source: source?.trim(),
-            produced: produced?.trim(),
-            content: contentParts.join("|").trim()
-          };
-        });
-    });
-}
-function slugify(name) {
-  return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
-}
-const shaykhParam = urlParams.get("sh");
-if (shaykhParam) {
-  loadScholarCommentary().then(commentaries => {
-    const matching = commentaries.filter(c =>
-      c.chapter === chapterId &&
-      c.verse === verseId &&
-      slugify(c.scholar) === shaykhParam
-    );
-
-    if (matching.length > 0) {
-      const commentaryHtml = matching.map(c => `
-        <div class="mt-4 p-3 border rounded">
-          <h5>Mufti/Shaykh: ${c.scholar}</h5>
-          ${c.source ? `<p class="mb-1 text-muted">Source: ${c.source}</p>` : ""}
-          ${c.produced ? `<p class="mb-1 text-muted">Produced/Translated by: ${c.produced}</p>` : ""} <hr>
-          <div class="english mt-3">${formatTafsir(c.content)}</div>
-        </div>
-      `).join("");
-
-      const container = document.createElement("div");
-      container.innerHTML = `
-        <h4 class="mt-4">💬 Scholarly Commentary</h4>
-        ${commentaryHtml}
-      `;
-      content.querySelector(".card").appendChild(container);
-    } else {
-      content.querySelector(".card").insertAdjacentHTML("beforeend", `
-        <div class="alert alert-warning mt-4">No commentary found for this scholar.</div>
-      `);
-    }
-  });
-}
-
 // === BEGIN QURAN surahs, verses, etc === //
-const [chapterIdStr, verseIdStr] = (verseParam || "").split(":");
-const chapterId = parseInt(chapterIdStr);
-const verseId = verseIdStr ? parseInt(verseIdStr) : null;
 const chapterName = surahNames[chapterId]?.transliteration || `Surah ${chapterId}`;
 let breadcrumbHtml = "";
 
@@ -1021,11 +982,13 @@ ${viewParam === 'tafsir' ? `Tafsir of Surah ${chapterId}:${verseId}` :
 
   if (verse) {
     const pad = (n) => String(n).padStart(3, '0');
+    const placeholderId = `commentary-link-placeholder-${verse.chapter}-${verse.verse}`;
     const audioURL = `https://everyayah.com/data/Nasser_Alqatami_128kbps/${pad(verse.chapter)}${pad(verse.verse)}.mp3`;
     const prev = verses.find(v => v.chapter === chapterId && v.verse === verseId - 1);
     const next = verses.find(v => v.chapter === chapterId && v.verse === verseId + 1);
     const name = surahNames[chapterId] || { transliteration: "", arabic: "" };
     const shareHTML = generateSocialShareHTML(verse.chapter, verse.verse);
+
     content.innerHTML = `
       ${breadcrumbHtml}           
       <div class="card border-0">
@@ -1048,7 +1011,7 @@ ${viewParam === 'tafsir' ? `Tafsir of Surah ${chapterId}:${verseId}` :
      
         <div class="d-flex justify-content-between mt-3 mb-3">          
            <div>
-            <span id="commentary-link-placeholder"></span>
+            <span id="${placeholderId}"></span>
            </div>
            <div>
             <button class="btn btn-sm border-0" type="button" data-bs-toggle="collapse" data-bs-target="#${verse.chapter}-${verse.verse}" aria-expanded="false" aria-controls="${verse.chapter}-${verse.verse}">
@@ -1081,42 +1044,184 @@ ${viewParam === 'tafsir' ? `Tafsir of Surah ${chapterId}:${verseId}` :
   </ul>
 </nav>
     `;
+if (shaykhParam) {
+  handleTafsirOrCommentary(shaykhParam, chapterId, verseId);
+}
+function handleTafsirOrCommentary(shaykhParam, chapterId, verseId) {
+  const src = allTafsirSources[shaykhParam];
+
+if (shaykhParam === "saadi") {
+  const src = allTafsirSources["saadi-en"];
+  if (!src || src.type !== "txt") return;
+
+  fetch(src.file)
+    .then(res => res.text())
+    .then(text => {
+      const lines = text.split("\n");
+      const matchLine = lines.find(line => {
+        const parts = line.split("|");
+        if (parts.length < 3) return false;
+        const ch = parseInt(parts[0]);
+        const range = parts[1];
+        if (ch !== chapterId) return false;
+        if (range.includes("-")) {
+          const [start, end] = range.split("-").map(Number);
+          return verseId >= start && verseId <= end;
+        }
+        return parseInt(range) === verseId;
+      });
+
+      if (matchLine) {
+        const parts = matchLine.split("|");
+        const tafsirText = parts.slice(2).join("|").trim();
+
+        const container = document.createElement("div");
+        container.innerHTML = `
+          <h4 class="mt-4">Tafsir: As-Sa'di</h4>
+          <div class="english mt-3">${formatTafsir(tafsirText)}</div>
+        `;
+        const card = document.querySelector(".card");
+        if (card) card.appendChild(container);
+        else console.warn("No .card element to append Saadi tafsir.");
+      } else {
+        const card = document.querySelector(".card");
+        if (card) {
+          card.insertAdjacentHTML("beforeend", `
+            <div class="alert alert-warning mt-4">No Saadi tafsir found for this verse.</div>
+          `);
+        }
+      }
+    });
+return;
+}
+
+  if (src?.type === "json") {
+    const path = `${src.path}/${chapterId}/${verseId}.json`;
+    fetch(path)
+      .then(res => {
+        if (!res.ok) throw new Error("Not found");
+        return res.json();
+      })
+      .then(data => {
+        const name = shaykhParam.replace(/-ar|-ru/, "").replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+        const container = document.createElement("div");
+        container.innerHTML = `
+          <h4 class="mt-4">Tafsir: ${name}</h4>
+          <div class="${src.lang === 'ar' ? 'arabic' : 'english'} mt-3" ${src.lang === 'ar' ? 'dir="rtl"' : ''}>${formatTafsir(data.text || "")}</div>
+        `;
+        const card = content.querySelector(".card");
+        if (card) {
+          card.appendChild(container);
+        } else {
+          console.warn("No .card element found to append JSON tafsir");
+        }
+      })
+      .catch(() => {
+        const card = content.querySelector(".card");
+        if (card) {
+          card.insertAdjacentHTML("beforeend", `
+            <div class="alert alert-warning mt-4">No JSON tafsir found for this verse.</div>
+          `);
+        } else {
+          console.warn("No .card element found to insert JSON warning");
+        }
+      });
+
+  } else if (shaykhParam === "saadi" && src?.type === "txt") {
+    fetch(src.file)
+      .then(res => res.text())
+      .then(text => {
+        const lines = text.trim().split("\n");
+        const matchLine = lines.find(line => {
+          const [ch, range] = line.split("|");
+          if (parseInt(ch) !== chapterId) return false;
+          if (range.includes("-")) {
+            const [s, e] = range.split("-").map(Number);
+            return verseId >= s && verseId <= e;
+          }
+          return parseInt(range) === verseId;
+        });
+
+        const card = content.querySelector(".card");
+        if (matchLine) {
+          const [_, range, ...rest] = matchLine.split("|");
+          const tafsirText = rest.join("|").trim();
+          const container = document.createElement("div");
+          container.innerHTML = `
+            <h4 class="mt-4">📘 Tafsir: As-Sa'di</h4>
+            <div class="english mt-3">${formatTafsir(tafsirText)}</div>
+          `;
+          if (card) {
+            card.appendChild(container);
+          } else {
+            console.warn("No .card element found to append Saadi tafsir");
+          }
+        } else if (card) {
+          card.insertAdjacentHTML("beforeend", `
+            <div class="alert alert-warning mt-4">No tafsir found in saadi.txt for this verse.</div>
+          `);
+        } else {
+          console.warn("No .card element found to insert Saadi warning");
+        }
+      });
+
+  } else {
+    // fallback to scholarly.commentary.txt
+    loadScholarCommentary().then(commentaries => {
+      const matching = commentaries.filter(c =>
+        c.chapter === chapterId &&
+        c.verse === verseId &&
+        slugify(c.scholar) === shaykhParam
+      );
+
+      const card = content.querySelector(".card");
+      if (matching.length > 0) {
+        const commentaryHtml = matching.map(c => `
+          <div class="mt-4 p-3 border rounded">
+            <h5>Mufti/Shaykh: ${c.scholar}</h5>
+            ${c.source ? `<p class="mb-1 text-muted">Source: ${c.source}</p>` : ""}
+            ${c.produced ? `<p class="mb-1 text-muted">Produced/Translated by: ${c.produced}</p>` : ""} <hr>
+            <div class="english mt-3">${formatTafsir(c.content)}</div>
+          </div>
+        `).join("");
+
+        const container = document.createElement("div");
+        container.innerHTML = `
+          <h4 class="mt-4">💬 Scholarly Commentary</h4>
+          ${commentaryHtml}
+        `;
+        if (card) {
+          card.appendChild(container);
+        } else {
+          console.warn("No .card element found to append commentary");
+        }
+      } else if (card) {
+        card.insertAdjacentHTML("beforeend", `
+          <div class="alert alert-warning mt-4">No commentary found for this scholar.</div>
+        `);
+      } else {
+        console.warn("No .card element found to insert warning");
+      }
+    });
+  }
+}
+
     document.title = `Surah ${name.transliteration} ${chapterId}:${verseId}`;
     initializeCopyIcons();
     initializeAudioIcons();
-  } else {
+  loadAllTafsirsAndCommentaries(verse.chapter, verse.verse).then(links => {
+    const el = document.getElementById(placeholderId);
+    if (el && links.length) {
+      el.innerHTML = links.map(link =>
+        `<a href="${link.href}" class="badge text-bg-info text-decoration-none me-1">${link.name}</a>`
+      ).join(" ");
+    }
+  });
+  } 
+  else {
     content.innerHTML = `<p>Verse not found.</p>`;
   }
-
-fetch("/quran/assets/data/scholarly.commentary.txt")
-  .then(res => res.text())
-  .then(text => {
-    const commentaries = text.split("\n").map(line => {
-      const [ch, vs, scholar, source, ...rest] = line.split("|");
-      return {
-        chapter: parseInt(ch),
-        verse: parseInt(vs),
-        scholar: scholar?.trim(),
-        source: source?.trim(),
-        content: rest.join("|").trim()
-      };
-    });
-
-    // Filter all scholars for current verse
-    const matching = commentaries.filter(c => c.chapter === chapterId && c.verse === verseId);
-    if (matching.length > 0) {
-      const links = matching.map(c => `
-        <a href="?verse=${c.chapter}:${c.verse}&sh=${slugify(c.scholar)}" class="badge text-bg-info text-decoration-none me-2">
-          ${c.scholar}
-        </a>
-      `).join(" ");
-      document.getElementById("commentary-link-placeholder").innerHTML = links;
-    }
-  })
-  .catch(err => {
-    console.warn("Commentary load failed:", err);
-  });
-
+          
 } else {
           const chapterVerses = verses.filter(v => v.chapter === chapterId);
           if (chapterVerses.length === 0) {
@@ -1129,40 +1234,25 @@ fetch("/quran/assets/data/scholarly.commentary.txt")
           const perPage = 20;
           const totalPages = Math.ceil(verseCount / perPage);
           const paginatedVerses = chapterVerses.slice((pageParam - 1) * perPage, pageParam * perPage);
-
-fetch("/quran/assets/data/scholarly.commentary.txt")
-  .then(res => res.text())
-  .then(txt => {
-    const commentaryLines = txt.split("\n").filter(Boolean);
-    const commentaryMap = new Map();
-    commentaryLines.forEach(line => {
-      const [ch, vs, scholar] = line.split("|");
-      const key = `${parseInt(ch)}:${parseInt(vs)}`;
-      if (!commentaryMap.has(key)) {
-        commentaryMap.set(key, new Set());
-      }
-      commentaryMap.get(key).add(scholar.trim());
-    });
-
           const chapterHtml = paginatedVerses.map(v => {
           const pad = (n) => String(n).padStart(3, '0');
           const audioURL = `https://everyayah.com/data/Nasser_Alqatami_128kbps/${pad(v.chapter)}${pad(v.verse)}.mp3`;
           const shareHTML = generateSocialShareHTML(v.chapter, v.verse);
+          const placeholderId = `commentary-link-placeholder-${v.chapter}-${v.verse}`;
+
+  loadAllTafsirsAndCommentaries(v.chapter, v.verse).then(links => {
+    const el = document.getElementById(placeholderId);
+    if (el && links.length) {
+      el.innerHTML = links.map(link =>
+        `<a href="${link.href}" class="badge text-bg-info text-decoration-none me-1">${link.name}</a>`
+      ).join(" ");
+    }
+  });
 
   let basmalahHTML = "";
   if (v.basmalah && v.basmalah.trim() !== "") {
     basmalahHTML = '<p class="mb-5 arabic fw-semibold text-center">' + v.basmalah + '</p>';
   }
-
-      const key = `${v.chapter}:${v.verse}`;
-      let commentaryLinks = "";
-      if (commentaryMap.has(key)) {
-        const scholars = Array.from(commentaryMap.get(key));
-        commentaryLinks = scholars.map(name => {
-          const slug = slugify(name);
-          return `<a href="?verse=${key}&sh=${slug}" class="text-decoration-none me-1 btn btn-sm border-0"><span class="badge badge-primary">${name}</span></a>`;
-        }).join(" ");
-      }
 
   return `
     <div class="verse-block p-0 mb-0 mt-3">
@@ -1184,7 +1274,7 @@ fetch("/quran/assets/data/scholarly.commentary.txt")
       </p>
         <div class="d-flex justify-content-between mt-3 mb-3">          
            <div>
-            ${commentaryLinks}
+            <span id="${placeholderId}"></span>
            </div>
            <div>
             <button class="btn btn-sm border-0" type="button" data-bs-toggle="collapse" data-bs-target="#${v.chapter}-${v.verse}" aria-expanded="false" aria-controls="${v.chapter}-${v.verse}">
@@ -1222,7 +1312,7 @@ let paginationHtml = `
           initializeAudioIcons();
 
 const svgContainer = document.getElementById(`surah-svg-${chapterId}`);
-fetch(`/quran/assets/svg/${chapterId}.svg`)
+fetch(`assets/svg/${chapterId}.svg`)
   .then(res => {
     if (!res.ok) throw new Error(`Failed to load SVG ${chapterId}`);
     return res.text();
@@ -1241,7 +1331,6 @@ fetch(`/quran/assets/svg/${chapterId}.svg`)
   .catch(err => {
     console.error(err);
     svgContainer.textContent = `#${chapterId}`;
-  });
   });
         }
       } else {
@@ -1284,7 +1373,7 @@ chapters.forEach(ch => {
   `;
   content.appendChild(col);
   const svgContainer = col.querySelector(`#surah-svg-${ch}`);
-  fetch(`/quran/assets/svg/${ch}.svg`)
+  fetch(`assets/svg/${ch}.svg`)
     .then(res => {
       if (!res.ok) throw new Error(`Failed to load SVG ${ch}`);
       return res.text();
@@ -1308,6 +1397,233 @@ chapters.forEach(ch => {
       content.innerHTML = `<p>Error loading Quran text files.</p>`;
     });
 // === END QURAN surahs, verses, etc === //
+
+const allTafsirSources = {
+  "ibn-kathir": { type: "json", path: "/quran/assets/data/tafsirs/ibn-kathir", lang: "en" },
+  "ibn-kathir-ar": { type: "json", path: "/quran/assets/data/tafsirs/ibn-kathir-ar", lang: "ar" },
+  "qurtubi-ar": { type: "json", path: "/quran/assets/data/tafsirs/qurtubi-ar", lang: "ar" },
+  "baghawi-ar": { type: "json", path: "/quran/assets/data/tafsirs/baghawi-ar", lang: "ar" },
+  "tabari-ar": { type: "json", path: "/quran/assets/data/tafsirs/tabari-ar", lang: "ar" },
+  "saadi-ar": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ar", lang: "ar" },
+  "saadi-ru": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ru", lang: "ru" },
+  "saadi-en": { type: "txt", file: "/quran/assets/data/tafsir.saadi.txt", lang: "en" },
+  "scholarly": { type: "txt", file: "/quran/assets/data/scholarly.commentary.txt", lang: "multi" }
+};
+function slugify(name) {
+  return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
+}
+async function loadAllTafsirsAndCommentaries(chapter, verse) {
+  const availableLinks = [];
+
+  // === JSON-based tafsirs ===
+  for (const [key, src] of Object.entries(allTafsirSources)) {
+    if (src.type === "json") {
+      const url = `${src.path}/${chapter}/${verse}.json`;
+      try {
+        const res = await fetch(url);
+        if (res.ok) {
+          const langParam = src.lang !== "en" ? `&lang=${src.lang}` : "";
+          availableLinks.push({
+            name: `${key.replace(/-ar|-ru/, "").replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())} (${src.lang.toUpperCase()})`,
+            href: `?verse=${chapter}:${verse}&sh=${key}${langParam}`
+          });
+        }
+      } catch (err) {
+        // Skip if not found
+      }
+    }
+  }
+
+  // === TXT-based tafsir: Saadi ===
+if (allTafsirSources["saadi-en"]) {
+  const res = await fetch(allTafsirSources["saadi-en"].file);
+  if (res.ok) {
+    const text = await res.text();
+    const lines = text.split("\n");
+
+    const hasMatch = lines.some(line => {
+      const parts = line.split("|");
+      if (parts.length < 3) return false;
+
+      const ch = parseInt(parts[0]);
+      const range = parts[1];
+      if (ch !== chapter) return false;
+
+      if (range.includes("-")) {
+        const [start, end] = range.split("-").map(Number);
+        return verse >= start && verse <= end;
+      } else {
+        return parseInt(range) === verse;
+      }
+    });
+
+    if (hasMatch) {
+      availableLinks.push({
+        name: "As-Sa'di (EN)",
+        href: `?verse=${chapter}:${verse}&sh=saadi&lang=en`
+      });
+    }
+  }
+}
+
+
+  // === Scholarly Commentary TXT ===
+  const res = await fetch(allTafsirSources["scholarly"].file);
+  if (res.ok) {
+    const text = await res.text();
+    const lines = text.split("\n").filter(Boolean);
+    const scholars = new Set();
+    lines.forEach(line => {
+      const [ch, vs, scholar] = line.split("|");
+      if (parseInt(ch) === chapter && parseInt(vs) === verse && scholar) {
+        scholars.add(scholar.trim());
+      }
+    });
+    [...scholars].forEach(sch => {
+      availableLinks.push({
+        name: sch,
+        href: `?verse=${chapter}:${verse}&sh=${slugify(sch)}`
+      });
+    });
+  }
+
+  return availableLinks;
+}
+
+function loadScholarCommentary(filePath = "/quran/assets/data/scholarly.commentary.txt") {
+  return fetch(filePath)
+    .then(res => res.text())
+    .then(text => {
+      return text
+        .split("\n")
+        .map(line => {
+          const parts = line.split("|");
+          if (parts.length < 3) return null;
+          const [chapter, verse, scholar, source, produced, ...contentParts] = parts;
+          return {
+            chapter: parseInt(chapter),
+            verse: parseInt(verse),
+            scholar: (scholar || "").trim(),
+            source: (source || "").trim(),
+            produced: (produced || "").trim(),
+            content: contentParts.join("|").trim()
+          };
+        })
+        .filter(Boolean);
+    });
+}
+
+if (shaykhParam) {
+  const src = allTafsirSources[shaykhParam];
+
+  if (src?.type === "json") {
+    const path = `${src.path}/${chapterId}/${verseId}.json`;
+    fetch(path)
+      .then(res => {
+        if (!res.ok) throw new Error("Not found");
+        return res.json();
+      })
+      .then(data => {
+        const name = shaykhParam.replace(/-ar|-ru/, "").replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+        const container = document.createElement("div");
+        container.innerHTML = `
+          <h4 class="mt-4">📘 Tafsir: ${name}</h4>
+          <div class="${src.lang === 'ar' ? 'arabic' : 'english'} mt-3" ${src.lang === 'ar' ? 'dir="rtl"' : ''}>${formatTafsir(data.text || "")}</div>
+        `;
+        content.querySelector(".card").appendChild(container);
+      })
+      .catch(() => {
+const card = content.querySelector(".card");
+if (card) {
+  card.insertAdjacentHTML("beforeend", `
+    <div class="alert alert-warning mt-4">No commentary found for this scholar.</div>
+  `);
+} else {
+  console.warn("No .card element found to insert warning");
+}
+
+      });
+
+  } else if (shaykhParam === "saadi" && src?.type === "txt") {
+    fetch(src.file)
+      .then(res => res.text())
+      .then(text => {
+        const lines = text.trim().split("\n");
+        const matchLine = lines.find(line => {
+          const [ch, range] = line.split("|");
+          if (parseInt(ch) !== chapterId) return false;
+          if (range.includes("-")) {
+            const [s, e] = range.split("-").map(Number);
+            return verseId >= s && verseId <= e;
+          }
+          return parseInt(range) === verseId;
+        });
+
+        if (matchLine) {
+          const [_, range, ...rest] = matchLine.split("|");
+          const tafsirText = rest.join("|").trim();
+          const container = document.createElement("div");
+          container.innerHTML = `
+            <h4 class="mt-4">📘 Tafsir: As-Sa'di</h4>
+            <div class="english mt-3">${formatTafsir(tafsirText)}</div>
+          `;
+const card = content.querySelector(".card");
+if (card) {
+  card.appendChild(container);
+} else {
+  console.warn("No .card element found to append commentary");
+}
+        } else {
+          content.querySelector(".card").insertAdjacentHTML("beforeend", `
+            <div class="alert alert-warning mt-4">No tafsir found in saadi.txt for this verse.</div>
+          `);
+        }
+      });
+
+  } else {
+    // fallback to scholarly.commentary.txt
+    loadScholarCommentary().then(commentaries => {
+      const matching = commentaries.filter(c =>
+        c.chapter === chapterId &&
+        c.verse === verseId &&
+        slugify(c.scholar) === shaykhParam
+      );
+
+      if (matching.length > 0) {
+        const commentaryHtml = matching.map(c => `
+          <div class="mt-4 p-3 border rounded">
+            <h5>Mufti/Shaykh: ${c.scholar}</h5>
+            ${c.source ? `<p class="mb-1 text-muted">Source: ${c.source}</p>` : ""}
+            ${c.produced ? `<p class="mb-1 text-muted">Produced/Translated by: ${c.produced}</p>` : ""} <hr>
+            <div class="english mt-3">${formatTafsir(c.content)}</div>
+          </div>
+        `).join("");
+
+        const container = document.createElement("div");
+        container.innerHTML = `
+          <h4 class="mt-4">💬 Scholarly Commentary</h4>
+          ${commentaryHtml}
+        `;
+const card = content.querySelector(".card");
+if (card) {
+  card.appendChild(container);
+} else {
+  console.warn("No .card element found to append commentary");
+}
+      } else {
+const card = content.querySelector(".card");
+if (card) {
+  card.insertAdjacentHTML("beforeend", `
+    <div class="alert alert-warning mt-4">No commentary found for this scholar.</div>
+  `);
+} else {
+  console.warn("No .card element found to insert warning");
+}
+
+      }
+    });
+  }
+}
 
 // === BEGIN COPY === //
 function copyTextFromData(btn) {
@@ -1354,63 +1670,56 @@ function insertAudioIcon(btn) {
   btn.innerHTML = `
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
          fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
-      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093
-               A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407
-               l3.5-2.5a.5.5 0 0 0 0-.814z"/>
+      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0
+               M6.79 5.093A.5.5 0 0 0 6 5.5v5
+               a.5.5 0 0 0 .79.407l3.5-2.5
+               a.5.5 0 0 0 0-.814z"/>
     </svg>`;
 }
+
 function initializeAudioIcons() {
   document.querySelectorAll(".icon-audio").forEach(insertAudioIcon);
 }
+
 function toggleAudio(audioId, btn) {
   const audio = document.getElementById(audioId);
   if (!audio) return;
 
-  // Pause all other audio players
+  // Pause all others first
   document.querySelectorAll('audio').forEach(a => {
-    if (a !== audio) a.pause();
+    if (a !== audio) {
+      a.pause();
+      a.currentTime = 0;
+
+      const otherBtn = document.querySelector(`button[onclick*="${a.id}"]`);
+      if (otherBtn) insertAudioIcon(otherBtn);
+    }
   });
 
+  // Toggle play
   if (audio.paused) {
-    audio.play();
-    btn.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-        class="bi bi-pause-circle-fill" viewBox="0 0 16 16">
-        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.25 5C5.56 5 5 5.56 5 6.25v3.5a1.25 1.25 0 1 0 
-        2.5 0v-3.5C7.5 5.56 6.94 5 6.25 5m3.5 0c-.69 0-1.25.56-1.25 1.25v3.5a1.25 1.25 0 1 0 
-        2.5 0v-3.5C11 5.56 10.44 5 9.75 5"/>
-      </svg>`;
+    audio.play().then(() => {
+      btn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+             fill="currentColor" class="bi bi-pause-circle-fill" viewBox="0 0 16 16">
+          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0
+                   M6.25 5C5.56 5 5 5.56 5 6.25v3.5a1.25 1.25 0 1 0 2.5 0v-3.5
+                   C7.5 5.56 6.94 5 6.25 5
+                   m3.5 0c-.69 0-1.25.56-1.25 1.25v3.5a1.25 1.25 0 1 0 2.5 0v-3.5
+                   C11 5.56 10.44 5 9.75 5"/>
+        </svg>`;
+    }).catch(err => {
+      console.warn("Audio play() failed:", err);
+    });
   } else {
     audio.pause();
-    btn.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-        class="bi bi-play-circle-fill" viewBox="0 0 16 16">
-        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 
-        5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>
-      </svg>`;
+    insertAudioIcon(btn);
   }
 
-  audio.onended = () => {
-    btn.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-        class="bi bi-play-circle-fill" viewBox="0 0 16 16">
-        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 
-        5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>
-      </svg>`;
-  };
+  audio.onended = () => insertAudioIcon(btn);
 }
-// === END OF AUDIO === //
 
-function formatTafsir(text) {
-  if (!text) return "";
-  return text
-    .replace(/#/g, "<br><br>")
-    .replace(/\*([^*]+)\*/g, '“<strong>$1</strong>”')
-    .replace(/\\n/g, "\n")
-    .replace(/\\+"/g, '"')
-    .replace(/\\\\/g, "\\")
-    .replace(/\n/g, "<br><br>");
-}
+
 function renderAudioButton(chapter, verse) {
   const pad = (n) => String(n).padStart(3, '0');
   const id = `audio-${chapter}-${verse}`;
@@ -1420,6 +1729,7 @@ function renderAudioButton(chapter, verse) {
     <button class="btn btn-sm border-0 play icon-audio" onclick="toggleAudio('${id}', this)"></button>
   `;
 }
+// === END OF AUDIO === //
 
 function generateSocialShareHTML(chapter, verse) {
   const shareUrl = `${location.origin}${location.pathname}?verse=${chapter}:${verse}`;
