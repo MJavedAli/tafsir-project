@@ -1,3 +1,60 @@
+const tafsirSources = {
+  "kathir-ar": { type: "json", path: "/quran/assets/data/tafsirs/ibn-kathir-ar" },
+  "qurtubi-ar": { type: "json", path: "/quran/assets/data/tafsirs/qurtubi-ar" },
+  "baghawi-ar": { type: "json", path: "/quran/assets/data/tafsirs/baghawi-ar" },
+  "tabari-ar": { type: "json", path: "/quran/assets/data/tafsirs/tabari-ar" },
+  "saadi-en": { type: "txt", file: "/quran/assets/data/tafsir.saadi.txt" },
+  "muyassar-ar": { type: "json", path: "/quran/assets/data/tafsirs/muyassar-ar" },
+  "saadi-ar": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ar" },
+  "saadi-ru": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ru" },
+  "kathir-en": { type: "json", path: "/quran/assets/data/tafsirs/ibn-kathir" }
+};
+const mufassirs = {
+  "ibn-kathir": { author: "Imam Ibn Kathir", book: "Tafsir Ibn Kathir", lang: "en" },
+  "ibn-kathir-ar": { author: "Imam Ibn Kathir", book: "Tafsir Ibn Kathir", lang: "ar" },
+  "qurtubi-ar": { author: "Imam Al-Qurtubi", book: "Tafsir Al-Qurtubi", lang: "ar" },
+  "baghawi-ar": { author: "Imam Al-Baghawi", book: "Tafsir Al-Baghawi", lang: "ar" },
+  "tabari-ar": { author: "Imam At-Tabari", book: "Tafsir At-Tabari", lang: "ar" },
+  "saadi-ar": { author: "Shaykh Abdul-Rahman As-Sa'di", book: "Tafsir As-Sa'di", lang: "ar" },
+  "saadi-ru": { author: "Shaykh Abdul-Rahman As-Sa'di", book: "Tafsir As-Sa'di", lang: "ru" },
+  "saadi-en": { author: "Shaykh Abdul-Rahman As-Sa'di", book: "Tafsir As-Sa'di", lang: "en" },
+  "muyassar-ar": {
+    author: "Shaykh Salih Aal Ash-Shaykh<br>King Fahad Quran Complex",
+    book: "Tafsir Al-Muyassar",
+    lang: "ar"
+  }
+};
+
+const scholarDisplayNames = {
+  "ibn-kathir": "Ibn Kathir (English)",
+  "ibn-kathir-ar": "Ibn Kathir (Arabic)",
+  "qurtubi-ar": "Al-Qurtubi (Arabic)",
+  "baghawi-ar": "Al-Baghawi (Arabic)",
+  "tabari-ar": "At-Tabari (Arabic)",
+  "muyassar": "Al-Muyassar (Arabic)",
+  "saadi-ar": "As-Sa'di (Arabic)",
+  "saadi-ru": "As-Sa'di (Russian)",
+  "saadi-en": "As-Sa'di (English)",
+  "salih-aal-al-shaykh": "Sh. Salih Aal Ash-Shaykh",
+  "ibn-baz": "Sh. Ibn Baz",
+  "ibn-uthaymeen": "Sh. Ibn Uthaymeen",
+  "abdul-muhsin-al-abbad": "Sh. Abdul Muhsin Al-Abbad",
+  "permanent-committee": "Permanent Committee"
+};
+
+const allTafsirSources = {
+  "ibn-kathir": { type: "json", path: "/quran/assets/data/tafsirs/ibn-kathir", lang: "en" },
+  "ibn-kathir-ar": { type: "json", path: "/quran/assets/data/tafsirs/ibn-kathir-ar", lang: "ar" },
+  "qurtubi-ar": { type: "json", path: "/quran/assets/data/tafsirs/qurtubi-ar", lang: "ar" },
+  "baghawi-ar": { type: "json", path: "/quran/assets/data/tafsirs/baghawi-ar", lang: "ar" },
+  "tabari-ar": { type: "json", path: "/quran/assets/data/tafsirs/tabari-ar", lang: "ar" },
+  "muyassar": { type: "txt", file: "/quran/assets/data/ar.muyassar.txt", lang: "ar" },
+  "saadi-ar": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ar", lang: "ar" },
+  "saadi-ru": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ru", lang: "ru" },
+  "saadi-en": { type: "txt", file: "/quran/assets/data/tafsir.saadi.txt", lang: "en" },
+  "scholarly": { type: "txt", file: "/quran/assets/data/scholarly.commentary.txt", lang: "multi" }
+};
+
 function normalizeArabic(str) {
   return str
     .normalize('NFD')
@@ -10,13 +67,24 @@ function normalizeArabic(str) {
     .trim();
 }
 function formatTafsir(text) {
-  // Add basic formatting rules here
+  if (!text) return "";
   return text
-    .replace(/\n/g, "<br>")               // Convert newlines to <br>
-    .replace(/“([^”]+)”/g, '<b>"$1"</b>')  // Bold quoted text
-    .replace(/‘([^’]+)’/g, '<b>\'$1\'</b>') // Bold single quotes
-    .replace(/(→|<-|=>)/g, '<b>$1</b>')    // Highlight arrows
-    .replace(/\*(.*?)\*/g, '<b>$1</b>');   // Bold *text*
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '')
+    .replace(/\\t/g, '')
+    .replace(/\\\\/g, '\\')
+    .replace(/\\"/g, '"')
+    .replace(/\\'/g, "'")
+    .replace(/\n+/g, "<br><br>")
+    .replace(/"([^"]+?\.)"/g, '<b>"$1"</b>')
+    .replace(/\n([^\n]{3,}[\u0600-\u06FF]+[^\n]{3,})\n/g, '<br><br><b>$1</b><br><br>')
+    .replace(/#/g, "<br><br>")
+    .replace(/\*([^*]+)\*/g, '“<strong>$1</strong>”')
+    .replace(/\\n/g, "\n")
+    .replace(/\\+"/g, '"')
+    .replace(/\\\\/g, "\\")
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/\n/g, "<br><br>");
 }
   function handleSearch(event) {
     event.preventDefault();
@@ -26,16 +94,13 @@ function formatTafsir(text) {
     }
   }
 
-const urlParams = new URLSearchParams(window.location.search);
-const viewParam = urlParams.get("view");
-const verseParam = urlParams.get("verse");
-const shaykhParam = urlParams.get("sh");
-
-const [chapterIdStr, verseIdStr] = (verseParam || "").split(":");
-const chapterId = parseInt(chapterIdStr);
-const verseId = verseIdStr ? parseInt(verseIdStr) : null;
-
-
+  const urlParams = new URLSearchParams(window.location.search);
+  const viewParam = urlParams.get("view");
+  const verseParam = urlParams.get("verse");
+  const shaykhParam = urlParams.get("sh");
+  const [chapterIdStr, verseIdStr] = (verseParam || "").split(":");
+  const chapterId = parseInt(chapterIdStr);
+  const verseId = verseIdStr ? parseInt(verseIdStr) : null;
   const searchQuery = urlParams.get("q")?.toLowerCase();
   const content = document.getElementById("content");
   const arabicURL = `/quran/assets/data/quran.txt?v=${Date.now()}`;
@@ -44,6 +109,7 @@ const verseId = verseIdStr ? parseInt(verseIdStr) : null;
   const tafsirURL = `/quran/assets/data/tafsir.saadi.txt?v=${Date.now()}`;
   const saadiURL = "/quran/assets/data/saadi.translation.txt";
   const quranSimpleURL = `/quran/assets/data/quran-simple-clean.txt?v=${Date.now()}`;
+  const translitURL = "/quran/assets/data/en.transliteration.txt";
 
   if (searchQuery) {
     document.getElementById("searchInput").value = searchQuery;
@@ -63,9 +129,10 @@ content.innerHTML = `
     fetch(englishURL).then(res => res.text()),
     fetch(surahNamesURL).then(res => res.text()),
     fetch(tafsirURL).then(res => res.text()),
-    fetch(saadiURL).then(res => res.text())
+    fetch(saadiURL).then(res => res.text()),
+    fetch(translitURL).then(res => res.text())
   ])
-    .then(([arabicText, quranSimpleText, englishText, surahNamesText, tafsirText, saadiText]) => {
+    .then(([arabicText, quranSimpleText, englishText, surahNamesText, tafsirText, saadiText, translitText]) => {
       const parseVerses = (text) => {
         return text.trim().split("\n").map(line => {
           const [chapter, verse, ...rest] = line.split("|");
@@ -78,11 +145,11 @@ content.innerHTML = `
         });
       };
 
-      const arabicVerses = parseVerses(arabicText);
-      const quranSimpleVerses = parseVerses(quranSimpleText);
-      const englishVerses = parseVerses(englishText);
-      const saadiVerses = parseVerses(saadiText);
-
+  const arabicVerses = parseVerses(arabicText);
+  const quranSimpleVerses = parseVerses(quranSimpleText);
+  const englishVerses = parseVerses(englishText);
+  const saadiVerses = parseVerses(saadiText);
+  const translitVerses = parseVerses(translitText);
   const tafsirMap = tafsirText.trim().split("\n").reduce((acc, line) => {
     if (!line.includes('|')) return acc;
     const [chapter, verse, ...rest] = line.split("|");
@@ -91,13 +158,13 @@ content.innerHTML = `
     acc[key] = rest.join("|").trim();
     return acc;
   }, {});
-
-const isSimpleArabic = localStorage.getItem("arabic_mode") === "simple";
-const selectedArabicVerses = isSimpleArabic ? quranSimpleVerses : arabicVerses;
-const verses = selectedArabicVerses.map(ar => {
-const en = englishVerses.find(e => e.key === ar.key);
-const saadi = saadiVerses.find(s => s.key === ar.key);
-const tafsir = tafsirMap[ar.key] || "";
+  const isSimpleArabic = localStorage.getItem("arabic_mode") === "simple";
+  const selectedArabicVerses = isSimpleArabic ? quranSimpleVerses : arabicVerses;
+  const verses = selectedArabicVerses.map(ar => {
+  const en = englishVerses.find(e => e.key === ar.key);
+  const saadi = saadiVerses.find(s => s.key === ar.key);
+  const translit = translitVerses.find(t => t.key === ar.key);
+  const tafsir = tafsirMap[ar.key] || "";
 
 let arabicText = ar.text;
 let basmalah = "";
@@ -120,6 +187,7 @@ if (ar.chapter !== 1 && ar.chapter !== 9) {
     verse: ar.verse,
     arabic: arabicText,
     english: en ? en.text : "(No translation)",
+    translit: translit?.text || "",
     saadi: saadi ? saadi.text : "(No Saadi translation)",
     tafsir: tafsir,
     basmalah: basmalah
@@ -438,37 +506,6 @@ function loadCommentaries() {
 // === END OF WIDGET RECENT SCHOLAR COMMENTARIES === //
 
 // === BEGIN TAFSIR HANDLER === //
-const tafsirSources = {
-  "kathir-ar": { type: "json", path: "/quran/assets/data/tafsirs/ibn-kathir-ar" },
-  "qurtubi-ar": { type: "json", path: "/quran/assets/data/tafsirs/qurtubi-ar" },
-  "baghawi-ar": { type: "json", path: "/quran/assets/data/tafsirs/baghawi-ar" },
-  "tabari-ar": { type: "json", path: "/quran/assets/data/tafsirs/tabari-ar" },
-  "saadi-en": { type: "txt", file: "/quran/assets/data/tafsir.saadi.txt" },
-  "saadi-ar": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ar" },
-  "saadi-ru": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ru" },
-  "kathir-en": { type: "json", path: "/quran/assets/data/tafsirs/ibn-kathir" }
-};
-
-function formatTafsir(text) {
-  if (!text) return "";
-  return text
-    .replace(/\\n/g, '\n')
-    .replace(/\\r/g, '')
-    .replace(/\\t/g, '')
-    .replace(/\\\\/g, '\\')
-    .replace(/\\"/g, '"')
-    .replace(/\\'/g, "'")
-    .replace(/\n+/g, "<br><br>")
-    .replace(/"([^"]+?\.)"/g, '<b>"$1"</b>')
-    .replace(/\n([^\n]{3,}[\u0600-\u06FF]+[^\n]{3,})\n/g, '<br><br><b>$1</b><br><br>')
-    .replace(/#/g, "<br><br>")
-    .replace(/\*([^*]+)\*/g, '“<strong>$1</strong>”')
-    .replace(/\\n/g, "\n")
-    .replace(/\\+"/g, '"')
-    .replace(/\\\\/g, "\\")
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/\n/g, "<br><br>");
-}
 if (viewParam === "tafsirs" && authorParam && !langParam) {
   content.innerHTML = `
     <div class="alert alert-light mt-4">
@@ -480,6 +517,7 @@ if (viewParam === "tafsirs" && authorParam && !langParam) {
   document.title = "404 Page Not Found";
   return;
 }
+
 if (viewParam === "tafsirs" && !authorParam) {
   const breadcrumbHtml = `
     <nav aria-label="breadcrumb">
@@ -489,6 +527,24 @@ if (viewParam === "tafsirs" && !authorParam) {
       </ol>
     </nav>`;
 
+  let i = 1;
+  const rows = Object.entries(mufassirs)
+    .sort((a, b) => a[1].book.localeCompare(b[1].book)) // optional: sort alphabetically
+    .map(([key, data]) => {
+      const [slug, lang] = key.includes("-")
+        ? [key.split("-").slice(0, -1).join("-"), data.lang]
+        : [key, data.lang];
+
+      return `
+        <tr>
+          <th scope="row">${i++}</th>
+          <td><a href="?view=tafsirs&author=${slug}&lang=${lang}" class="text-decoration-none">${data.book}</a></td>
+          <td>${data.author}</td>
+          <td>${lang === "en" ? "English" : lang === "ar" ? "Arabic" : lang === "ru" ? "Russian" : lang}</td>
+        </tr>`;
+    })
+    .join("");
+
   content.innerHTML = `
     ${breadcrumbHtml}
     <h2 class="page-title">Tafsir</h2>
@@ -497,44 +553,23 @@ if (viewParam === "tafsirs" && !authorParam) {
         <tr>
           <th scope="col">#</th>
           <th scope="col">Tafsir</th>
+          <th scope="col">Author</th>
           <th scope="col">Language</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <th scope="row">1</th>
-          <td><a href="?view=tafsirs&author=saadi&lang=en" class="text-decoration-none">Tafsir As-Sa'di</a></td>
-          <td>English</td>
-        </tr>
-        <tr>
-          <th scope="row">2</th>
-          <td><a href="?view=tafsirs&author=saadi&lang=ar" class="text-decoration-none">Tafsir As-Sa'di</a></td>
-          <td>Arabic</td>
-        </tr>
-        <tr>
-          <th scope="row">3</th>
-          <td><a href="?view=tafsirs&author=saadi&lang=ru" class="text-decoration-none">Tafsir As-Sa'di</a></td>
-          <td>Russian</td>
-        </tr>
-        <tr>
-          <th scope="row">4</th>
-          <td><a href="?view=tafsirs&author=kathir&lang=en" class="text-decoration-none">Tafsir Ibn Kathir</a></td>
-          <td>English</td>
-        </tr>
-      </tbody>
+      <tbody>${rows}</tbody>
     </table>
 
-  <div class="card card-body" id="recent-commentary-list"></div>
-  <div class="pagination-container text-center mt-3">
-    <button id="prev-page" class="btn btn-sm btn-outline-secondary me-2">Previous</button>
-    <span id="commentary-page-info"></span>
-    <button id="next-page" class="btn btn-sm btn-outline-secondary ms-2">Next</button>
-  </div>
+    <div class="card card-body" id="recent-commentary-list"></div>
+    <div class="pagination-container text-center mt-3">
+      <button id="prev-page" class="btn btn-sm btn-outline-secondary me-2">Previous</button>
+      <span id="commentary-page-info"></span>
+      <button id="next-page" class="btn btn-sm btn-outline-secondary ms-2">Next</button>
+    </div>
+  `;
 
-  </div>
-   `;
   document.title = "Tafsir";
-  loadCommentaries(); 
+  loadCommentaries();
   return;
 }
 
@@ -988,7 +1023,7 @@ ${viewParam === 'tafsir' ? `Tafsir of Surah ${chapterId}:${verseId}` :
     const next = verses.find(v => v.chapter === chapterId && v.verse === verseId + 1);
     const name = surahNames[chapterId] || { transliteration: "", arabic: "" };
     const shareHTML = generateSocialShareHTML(verse.chapter, verse.verse);
-
+const translitVerses = parseVerses(translitText);
     content.innerHTML = `
       ${breadcrumbHtml}           
       <div class="card border-0">
@@ -1002,6 +1037,7 @@ ${viewParam === 'tafsir' ? `Tafsir of Surah ${chapterId}:${verseId}` :
             onclick="copyTextFromData(this)">
            </button>
           </p>
+          <p class="mb-2 mt-2">${verse.translit}</p>
           <p class="mb-1 mt-3 english"><span class="badge small rounded-pill text-bg-success bg-opacity-75 bg-gradient fw-light">Hilali</span> <br> ${verse.english}
            <button class="btn btn-sm small border-0 icon-copy"
             data-copy="${verse.english.replace(/"/g, '&quot;')}"
@@ -1050,7 +1086,44 @@ if (shaykhParam) {
 function handleTafsirOrCommentary(shaykhParam, chapterId, verseId) {
   const src = allTafsirSources[shaykhParam];
 
-if (shaykhParam === "saadi") {
+if (shaykhParam === "muyassar") {
+  const src = allTafsirSources["muyassar"];
+  if (!src || src.type !== "txt") return;
+
+  fetch(src.file)
+    .then(res => res.text())
+    .then(text => {
+      const lines = text.split("\n");
+      const matchLine = lines.find(line => {
+        const parts = line.split("|");
+        if (parts.length < 3) return false;
+        const ch = parseInt(parts[0]);
+        const vs = parseInt(parts[1]);
+        return ch === chapterId && vs === verseId;
+      });
+
+      const card = content.querySelector(".card");
+      if (matchLine) {
+        const parts = matchLine.split("|");
+        const tafsirText = parts.slice(2).join("|").trim();
+        const container = document.createElement("div");
+        container.innerHTML = `
+          <h4 class="mt-4">Tafsir Al-Muyassar</h4>
+          <p>Shaykh Salih Aal Ash-Shaykh</p>
+          <div class="arabic mt-3" dir="rtl">${formatTafsir(tafsirText)}</div>
+        `;
+        if (card) card.appendChild(container);
+        else console.warn("No .card element to append Muyassar tafsir");
+      } else if (card) {
+        card.insertAdjacentHTML("beforeend", `
+          <div class="alert alert-warning mt-4">No tafsir found in Muyassar for this verse.</div>
+        `);
+      }
+    });
+  return;
+}
+
+if (shaykhParam === "saadi" || shaykhParam === "saadi-en") {
   const src = allTafsirSources["saadi-en"];
   if (!src || src.type !== "txt") return;
 
@@ -1077,7 +1150,7 @@ if (shaykhParam === "saadi") {
 
         const container = document.createElement("div");
         container.innerHTML = `
-          <h4 class="mt-4">Tafsir: As-Sa'di</h4>
+          <h4 class="mt-4">Tafsir As-Sa'di</h4>
           <div class="english mt-3">${formatTafsir(tafsirText)}</div>
         `;
         const card = document.querySelector(".card");
@@ -1103,10 +1176,10 @@ return;
         return res.json();
       })
       .then(data => {
-        const name = shaykhParam.replace(/-ar|-ru/, "").replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+        const name = scholarDisplayNames[shaykhParam] || shaykhParam.replace(/-ar|-ru/, "").replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
         const container = document.createElement("div");
         container.innerHTML = `
-          <h4 class="mt-4">Tafsir: ${name}</h4>
+          <h4 class="mt-4">Tafsir ${name}</h4>
           <div class="${src.lang === 'ar' ? 'arabic' : 'english'} mt-3" ${src.lang === 'ar' ? 'dir="rtl"' : ''}>${formatTafsir(data.text || "")}</div>
         `;
         const card = content.querySelector(".card");
@@ -1120,7 +1193,7 @@ return;
         const card = content.querySelector(".card");
         if (card) {
           card.insertAdjacentHTML("beforeend", `
-            <div class="alert alert-warning mt-4">No JSON tafsir found for this verse.</div>
+            <div class="alert alert-warning mt-4">No tafsir found for this verse.</div>
           `);
         } else {
           console.warn("No .card element found to insert JSON warning");
@@ -1148,7 +1221,7 @@ return;
           const tafsirText = rest.join("|").trim();
           const container = document.createElement("div");
           container.innerHTML = `
-            <h4 class="mt-4">📘 Tafsir: As-Sa'di</h4>
+            <h4 class="mt-4">Tafsir As-Sa'di</h4>
             <div class="english mt-3">${formatTafsir(tafsirText)}</div>
           `;
           if (card) {
@@ -1178,7 +1251,7 @@ return;
       if (matching.length > 0) {
         const commentaryHtml = matching.map(c => `
           <div class="mt-4 p-3 border rounded">
-            <h5>Mufti/Shaykh: ${c.scholar}</h5>
+            <h5>Mufti/Shaykh: ${getScholarDisplay(slugify(c.scholar), c.scholar)}</h5>
             ${c.source ? `<p class="mb-1 text-muted">Source: ${c.source}</p>` : ""}
             ${c.produced ? `<p class="mb-1 text-muted">Produced/Translated by: ${c.produced}</p>` : ""} <hr>
             <div class="english mt-3">${formatTafsir(c.content)}</div>
@@ -1257,14 +1330,20 @@ return;
   return `
     <div class="verse-block p-0 mb-0 mt-3">
       ${basmalahHTML} 
+      <div class="d-flex justify-content-between">
       <p><a role="button" href="?verse=${v.chapter}:${v.verse}" class="text-decoration-none btn btn-sm ayah-link">         ${v.chapter}:${v.verse}</a> ${renderAudioButton(v.chapter, v.verse)}
       </p>
+            <button class="btn btn-sm border-0" type="button" data-bs-toggle="collapse" data-bs-target="#${v.chapter}-${v.verse}" aria-expanded="false" aria-controls="${v.chapter}-${v.verse}">
+             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share" viewBox="0 0 16 16"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5m-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3"/></svg>
+            </button>
+      </div>
       <p class="mb-3 arabic" dir="rtl">${v.arabic}
            <button class="btn btn-sm small border-0 icon-copy"
             data-copy="${v.arabic.replace(/"/g, '&quot;')}"
             onclick="copyTextFromData(this)">
            </button>
       </p>
+      <p class="mb-2 mt-2">${v.translit}</p>
       <p class="mb-1 english mt-3">
         <span class="badge small rounded-pill ayah-num bg-opacity-75 bg-gradient fw-light">Hilali</span> ${v.english}
            <button class="btn btn-sm small border-0 icon-copy"
@@ -1272,15 +1351,8 @@ return;
             onclick="copyTextFromData(this)">
            </button>
       </p>
-        <div class="d-flex justify-content-between mt-3 mb-3">          
-           <div>
+        <div class="mt-3 mb-3">          
             <span id="${placeholderId}"></span>
-           </div>
-           <div>
-            <button class="btn btn-sm border-0" type="button" data-bs-toggle="collapse" data-bs-target="#${v.chapter}-${v.verse}" aria-expanded="false" aria-controls="${v.chapter}-${v.verse}">
-             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share" viewBox="0 0 16 16"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5m-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3"/></svg>
-            </button>
-           </div>
          </div>
         ${shareHTML}
     </div>
@@ -1312,7 +1384,7 @@ let paginationHtml = `
           initializeAudioIcons();
 
 const svgContainer = document.getElementById(`surah-svg-${chapterId}`);
-fetch(`assets/svg/${chapterId}.svg`)
+fetch(`/quran/assets/svg/${chapterId}.svg`)
   .then(res => {
     if (!res.ok) throw new Error(`Failed to load SVG ${chapterId}`);
     return res.text();
@@ -1373,7 +1445,7 @@ chapters.forEach(ch => {
   `;
   content.appendChild(col);
   const svgContainer = col.querySelector(`#surah-svg-${ch}`);
-  fetch(`assets/svg/${ch}.svg`)
+  fetch(`/quran/assets/svg/${ch}.svg`)
     .then(res => {
       if (!res.ok) throw new Error(`Failed to load SVG ${ch}`);
       return res.text();
@@ -1398,19 +1470,16 @@ chapters.forEach(ch => {
     });
 // === END QURAN surahs, verses, etc === //
 
-const allTafsirSources = {
-  "ibn-kathir": { type: "json", path: "/quran/assets/data/tafsirs/ibn-kathir", lang: "en" },
-  "ibn-kathir-ar": { type: "json", path: "/quran/assets/data/tafsirs/ibn-kathir-ar", lang: "ar" },
-  "qurtubi-ar": { type: "json", path: "/quran/assets/data/tafsirs/qurtubi-ar", lang: "ar" },
-  "baghawi-ar": { type: "json", path: "/quran/assets/data/tafsirs/baghawi-ar", lang: "ar" },
-  "tabari-ar": { type: "json", path: "/quran/assets/data/tafsirs/tabari-ar", lang: "ar" },
-  "saadi-ar": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ar", lang: "ar" },
-  "saadi-ru": { type: "json", path: "/quran/assets/data/tafsirs/saadi-ru", lang: "ru" },
-  "saadi-en": { type: "txt", file: "/quran/assets/data/tafsir.saadi.txt", lang: "en" },
-  "scholarly": { type: "txt", file: "/quran/assets/data/scholarly.commentary.txt", lang: "multi" }
-};
 function slugify(name) {
-  return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
+  return name.toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9\-]/g, '');
+}
+function getScholarDisplay(slug) {
+  return scholarDisplayNames[slug] || slug
+    .replace(/-ar|-ru|-en/, '')
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, l => l.toUpperCase());
 }
 async function loadAllTafsirsAndCommentaries(chapter, verse) {
   const availableLinks = [];
@@ -1424,7 +1493,7 @@ async function loadAllTafsirsAndCommentaries(chapter, verse) {
         if (res.ok) {
           const langParam = src.lang !== "en" ? `&lang=${src.lang}` : "";
           availableLinks.push({
-            name: `${key.replace(/-ar|-ru/, "").replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())} (${src.lang.toUpperCase()})`,
+            name: getScholarDisplay(key, key.replace(/-ar|-ru/, "").replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())),
             href: `?verse=${chapter}:${verse}&sh=${key}${langParam}`
           });
         }
@@ -1434,38 +1503,39 @@ async function loadAllTafsirsAndCommentaries(chapter, verse) {
     }
   }
 
-  // === TXT-based tafsir: Saadi ===
-if (allTafsirSources["saadi-en"]) {
-  const res = await fetch(allTafsirSources["saadi-en"].file);
-  if (res.ok) {
-    const text = await res.text();
-    const lines = text.split("\n");
+// === TXT-based tafsirs (e.g., saadi-en, muyassar) ===
+for (const [key, src] of Object.entries(allTafsirSources)) {
+  if (src.type === "txt" && key !== "scholarly") {
+    const res = await fetch(src.file);
+    if (res.ok) {
+      const text = await res.text();
+      const lines = text.trim().split("\n");
+      const hasMatch = lines.some(line => {
+        const parts = line.split("|");
+        if (parts.length < 3) return false;
 
-    const hasMatch = lines.some(line => {
-      const parts = line.split("|");
-      if (parts.length < 3) return false;
+        const ch = parseInt(parts[0]);
+        const range = parts[1];
 
-      const ch = parseInt(parts[0]);
-      const range = parts[1];
-      if (ch !== chapter) return false;
+        if (ch !== chapter) return false;
 
-      if (range.includes("-")) {
-        const [start, end] = range.split("-").map(Number);
-        return verse >= start && verse <= end;
-      } else {
+        if (range.includes("-")) {
+          const [start, end] = range.split("-").map(Number);
+          return verse >= start && verse <= end;
+        }
+
         return parseInt(range) === verse;
-      }
-    });
-
-    if (hasMatch) {
-      availableLinks.push({
-        name: "As-Sa'di (EN)",
-        href: `?verse=${chapter}:${verse}&sh=saadi&lang=en`
       });
+
+      if (hasMatch) {
+        availableLinks.push({
+          name: getScholarDisplay(key),
+          href: `?verse=${chapter}:${verse}&sh=${key}&lang=${src.lang || 'en'}`
+        });
+      }
     }
   }
 }
-
 
   // === Scholarly Commentary TXT ===
   const res = await fetch(allTafsirSources["scholarly"].file);
@@ -1480,8 +1550,9 @@ if (allTafsirSources["saadi-en"]) {
       }
     });
     [...scholars].forEach(sch => {
+      const slug = slugify(sch);
       availableLinks.push({
-        name: sch,
+        name: getScholarDisplay(slug, sch),
         href: `?verse=${chapter}:${verse}&sh=${slugify(sch)}`
       });
     });
@@ -1524,10 +1595,10 @@ if (shaykhParam) {
         return res.json();
       })
       .then(data => {
-        const name = shaykhParam.replace(/-ar|-ru/, "").replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+        const name = tafsirDisplayNames[shaykhParam] || shaykhParam.replace(/-ar|-ru/, "").replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
         const container = document.createElement("div");
         container.innerHTML = `
-          <h4 class="mt-4">📘 Tafsir: ${name}</h4>
+          <h4 class="mt-4">Tafsir ${name}</h4>
           <div class="${src.lang === 'ar' ? 'arabic' : 'english'} mt-3" ${src.lang === 'ar' ? 'dir="rtl"' : ''}>${formatTafsir(data.text || "")}</div>
         `;
         content.querySelector(".card").appendChild(container);
@@ -1564,7 +1635,7 @@ if (card) {
           const tafsirText = rest.join("|").trim();
           const container = document.createElement("div");
           container.innerHTML = `
-            <h4 class="mt-4">📘 Tafsir: As-Sa'di</h4>
+            <h4 class="mt-4">Tafsir As-Sa'di</h4>
             <div class="english mt-3">${formatTafsir(tafsirText)}</div>
           `;
 const card = content.querySelector(".card");
@@ -1592,7 +1663,7 @@ if (card) {
       if (matching.length > 0) {
         const commentaryHtml = matching.map(c => `
           <div class="mt-4 p-3 border rounded">
-            <h5>Mufti/Shaykh: ${c.scholar}</h5>
+            <h5>Mufti/Shaykh: ${getScholarDisplay(slugify(c.scholar), c.scholar)}</h5>
             ${c.source ? `<p class="mb-1 text-muted">Source: ${c.source}</p>` : ""}
             ${c.produced ? `<p class="mb-1 text-muted">Produced/Translated by: ${c.produced}</p>` : ""} <hr>
             <div class="english mt-3">${formatTafsir(c.content)}</div>
