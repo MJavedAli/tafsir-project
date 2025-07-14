@@ -1832,7 +1832,28 @@ function generateSocialShareHTML(chapter, verse) {
 }
 function initializeSocialPopovers() {
   const triggers = document.querySelectorAll('[data-bs-toggle="popover"]');
+
   triggers.forEach(trigger => {
-    bootstrap.Popover.getOrCreateInstance(trigger);
+    const popover = bootstrap.Popover.getOrCreateInstance(trigger);
+
+    // Handle toggle text
+    trigger.addEventListener('shown.bs.popover', () => {
+      trigger.innerHTML = `<i class="bi bi-x-lg me-1"></i> Cancel`;
+    });
+
+    trigger.addEventListener('hidden.bs.popover', () => {
+      trigger.innerHTML = `<i class="bi bi-share me-1"></i> Share`;
+    });
+
+    // Toggle manually when clicked (Bootstrap popover is toggle by default)
+    trigger.addEventListener('click', () => {
+      // Ensure only one popover is open at a time
+      triggers.forEach(btn => {
+        if (btn !== trigger) {
+          const otherPopover = bootstrap.Popover.getInstance(btn);
+          if (otherPopover) otherPopover.hide();
+        }
+      });
+    });
   });
 }
