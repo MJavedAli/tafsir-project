@@ -96,9 +96,9 @@ if ('serviceWorker' in navigator) {
               </a>
             </li>
             <li class="menu-item">
-              <a href="?view=topics" class="menu-link">
+              <a href="?view=verse-references" class="menu-link">
                 <span class="menu-icon icon-fatwa"></span>
-                <span class="menu-label">Topics</span>
+                <span class="menu-label">Verse Reverences</span>
               </a>
             </li>
             <li class="menu-item">
@@ -136,6 +136,18 @@ if ('serviceWorker' in navigator) {
         <div class="row g-4" id="content"></div>
       </div>
     </div>
+
+<template id="social-popover-template">
+  <ul class="nav flex-column gap-1 fs-6">
+    <li class="nav-item"><a class="facebook text-decoration-none" target="_blank"><i class="bi bi-facebook me-1"></i> Facebook</a></li>
+    <li class="nav-item"><a class="twitter text-decoration-none" target="_blank"><i class="bi bi-twitter-x me-1"></i> Twitter</a></li>
+    <li class="nav-item"><a class="threads text-decoration-none" target="_blank"><i class="bi bi-threads me-1"></i> Threads</a></li>
+    <li class="nav-item"><a class="telegram text-decoration-none" target="_blank"><i class="bi bi-telegram me-1"></i> Telegram</a></li>
+    <li class="nav-item"><a class="whatsapp text-decoration-none" target="_blank"><i class="bi bi-whatsapp me-1"></i> WhatsApp</a></li>
+    <li class="nav-item"><a class="copy-url text-decoration-none" role="button" data-copy=""><i class="bi bi-copy me-1"></i> Copy Link</a></li>
+    <li class="nav-item"><a class="read-verse text-decoration-none"><i class="bi bi-book me-1"></i> Read verse</a></li>
+  </ul>
+</template>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>

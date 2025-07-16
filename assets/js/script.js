@@ -111,10 +111,6 @@ function formatTafsir(text) {
   const quranSimpleURL = `/quran/assets/data/quran-simple-clean.txt?v=${Date.now()}`;
   const translitURL = "/quran/assets/data/en.transliteration.txt";
 
-  if (searchQuery) {
-    document.getElementById("searchInput").value = searchQuery;
-  }
-
 content.innerHTML = `
   <div class="text-center py-5">
     <div class="mx-auto mb-3">
@@ -358,11 +354,11 @@ if (viewParam === "juz" && urlParams.get("juz")) {
 // === END OF QURANIC JUZ === //
 
 // === BEGIN QURANIC TOPICS === //
-if (viewParam === "topics") {
+if (viewParam === "verse-references") {
   const currentPage = parseInt(urlParams.get("page")) || 1;
   const pageSize = 30;
 
-  fetch("/quran/assets/data/topics.txt")
+  fetch("assets/data/topics.txt")
     .then(res => res.text())
     .then(text => {
       const lines = text.trim().split("\n");
@@ -373,7 +369,7 @@ if (viewParam === "topics") {
       const paginated = lines.slice(start, start + pageSize);
 
       content.innerHTML = `
-        <h4 class="mb-4">Topics</h4>
+        <h4 class="mb-4">Verse References</h4>
         <div class="table-responsive">
           <table class="table table-bordered table-hover align-middle">
             <thead class="table-light">
@@ -394,8 +390,8 @@ if (viewParam === "topics") {
 
         const links = refs.split(",").map(ref => {
           const trimmed = ref.trim();
-          return `<a href="?verse=${trimmed}" class="text-decoration-none">${trimmed}</a>`;
-        }).join(", ");
+          return `<a href="?verse=${trimmed}" class="text-decoration-none"><span class="badge badge-primary">${trimmed}</span></a>`;
+        }).join(" ");
 
         tableBody.innerHTML += `
           <tr>
@@ -408,16 +404,16 @@ if (viewParam === "topics") {
       content.innerHTML += `
         <nav class="mt-4 d-flex justify-content-between align-items-center">
           ${currentPage > 1
-            ? `<a class="btn btn-outline-primary" href="?view=topics&page=${currentPage - 1}">&laquo; Previous</a>`
+            ? `<a class="btn btn-outline-primary" href="?view=verse-references&page=${currentPage - 1}">&laquo; Previous</a>`
             : "<span></span>"}
           <span>Page ${currentPage} of ${totalPages}</span>
           ${currentPage < totalPages
-            ? `<a class="btn btn-outline-primary" href="?view=topics&page=${currentPage + 1}">Next &raquo;</a>`
+            ? `<a class="btn btn-outline-primary" href="?view=verse-references&page=${currentPage + 1}">Next &raquo;</a>`
             : ""}
         </nav>`;
     })
     .catch(err => {
-      content.innerHTML = `<p class="text-danger">❌ Failed to load topics file.</p>`;
+      content.innerHTML = `<p class="text-danger">❌ Failed to load verse-references file.</p>`;
       console.error(err);
     });
 
@@ -826,6 +822,55 @@ const chapters = [...new Set(
 
 // === BEGIN SEARCH === //
 if (searchQuery) {
+  document.getElementById("searchInput").value = searchQuery;
+
+  const cleanedQuery = searchQuery.toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim();
+  const cleanedQueryWords = cleanedQuery.split(/\s+/);
+  const normalized = cleanedQuery.replace(/\s+/g, "");
+
+  const juzMatch = cleanedQuery.match(/\bjuz\s*(\d{1,2})\b/i);
+  if (juzMatch) {
+    const juzNum = parseInt(juzMatch[1]);
+    if (juzNum >= 1 && juzNum <= 30) {
+      window.location.href = `?view=juz&juz=${juzNum}`;
+      return;
+    }
+  }
+
+  const surahNumberMatch = cleanedQuery.match(/\b(?:surah|sura|chapter)\s*(\d{1,3})\b/);
+  if (surahNumberMatch) {
+    const surahNum = parseInt(surahNumberMatch[1]);
+    if (surahNum >= 1 && surahNum <= 114) {
+      window.location.href = `?verse=${surahNum}`;
+      return;
+    }
+  }
+
+const chapterAliases = Object.entries(surahNames).reduce((acc, [id, meta]) => {
+  const addAlias = (name) => {
+    if (!name) return;
+    const base = name.toLowerCase().replace(/[^a-z0-9]/g, ""); // no space or punctuation
+    acc[base] = id;
+    const withoutAl = base.replace(/^al/, ""); // strip leading "al" if present
+    if (withoutAl !== base) acc[withoutAl] = id;
+  };
+  addAlias(meta.transliteration);
+  addAlias(meta.english);
+  return acc;
+}, {});
+
+  if (chapterAliases[normalized]) {
+    window.location.href = `?verse=${chapterAliases[normalized]}`;
+    return;
+  }
+
+  for (const [name, id] of Object.entries(chapterAliases)) {
+    if (normalized.includes(name) || cleanedQueryWords.includes(name)) {
+      window.location.href = `?verse=${id}`;
+      return;
+    }
+  }
+
   const verseRangeMatch = searchQuery.match(/^(\d+):(\d+)-(\d+)$/);
   const singleVerseMatch = searchQuery.match(/^(\d+):(\d+)$/);
   const surahOnlyMatch = searchQuery.match(/^\d+$/);
@@ -835,13 +880,11 @@ if (searchQuery) {
     window.location.href = `?verse=${surah}:${start}-${end}`;
     return;
   }
-
   if (singleVerseMatch) {
     const [_, surah, ayah] = singleVerseMatch;
     window.location.href = `?verse=${surah}:${ayah}`;
     return;
   }
-
   if (surahOnlyMatch) {
     window.location.href = `?verse=${searchQuery}`;
     return;
@@ -849,17 +892,16 @@ if (searchQuery) {
 
   const normalizedQuery = normalizeArabic(searchQuery);
   const results = verses.filter(v => {
-  const normalizedArabic = normalizeArabic(v.arabic);
-  const normalizedSaadi = normalizeArabic(v.saadi);
-  const normalizedTafsir = normalizeArabic(v.tafsir);
-
-  return (
-    normalizedArabic.includes(normalizedQuery) ||
-    v.english.toLowerCase().includes(searchQuery) ||
-    normalizedSaadi.includes(normalizedQuery) ||
-    normalizedTafsir.includes(normalizedQuery)
-  );
-});
+    const normalizedArabic = normalizeArabic(v.arabic);
+    const normalizedSaadi = normalizeArabic(v.saadi);
+    const normalizedTafsir = normalizeArabic(v.tafsir);
+    return (
+      normalizedArabic.includes(normalizedQuery) ||
+      v.english.toLowerCase().includes(searchQuery) ||
+      normalizedSaadi.includes(normalizedQuery) ||
+      normalizedTafsir.includes(normalizedQuery)
+    );
+  });
 
   if (results.length === 0) {
     content.innerHTML = `<p>No results found for "${searchQuery}"</p>`;
@@ -879,39 +921,38 @@ if (searchQuery) {
     ${Object.keys(grouped).map(ch => {
       const chapterName = surahNames[ch]?.transliteration || `Surah ${ch}`;
       return `
- <div class="card border-0">
-  <div class="card-header bg-transparent border-bottom">
-    <a class="text-decoration-none chapter-name-search" href="?verse=${ch}">Surah ${ch}: ${chapterName}</a>
-  </div>
-  <div class="card-body">
-        ${grouped[ch].map(v => `
-          <div class="verse-block p-3 mb-3">
-            <div class="d-flex justify-content-start">
-             <a href="?verse=${v.chapter}:${v.verse}" class="btn btn-sm ayah-link bg-opacity-75 bg-gradient text-decoration-none">${v.chapter}:${v.verse}</a>
-             ${renderAudioButton(v.chapter, v.verse)}
+        <div class="card border-0">
+          <div class="card-header bg-transparent border-bottom">
+            <a class="text-decoration-none chapter-name-search" href="?verse=${ch}">Surah ${ch}: ${chapterName}</a>
           </div>
-            <p class="mb-1 arabic" dir="rtl">
-             ${highlight(v.arabic, searchQuery)}
-            <button class="btn btn-sm small border-0 icon-copy"
-            data-copy="${v.arabic.replace(/"/g, '&quot;')}"
-            onclick="copyTextFromData(this)">
-           </button>
-            </p>
-            <p class="mb-1 english">
-             <span class="badge small rounded-pill ayah-num bg-opacity-75 bg-gradient fw-light">Hilali</span> ${highlight(v.english, searchQuery)}
-           <button class="btn btn-sm small border-0 icon-copy"
-            data-copy="${v.english.replace(/"/g, '&quot;')}"
-            onclick="copyTextFromData(this)">
-           </button>
-            </p>
+          <div class="card-body">
+            ${grouped[ch].map(v => `
+              <div class="verse-block p-3 mb-3">
+                <div class="d-flex justify-content-start">
+                  <a href="?verse=${v.chapter}:${v.verse}" class="btn btn-sm ayah-link bg-opacity-75 bg-gradient text-decoration-none">${v.chapter}:${v.verse}</a>
+                  ${renderAudioButton(v.chapter, v.verse)}
+                </div>
+                <p class="mb-1 arabic" dir="rtl">
+                  ${highlight(v.arabic, searchQuery)}
+                  <button class="btn btn-sm small border-0 icon-copy"
+                    data-copy="${v.arabic.replace(/"/g, '&quot;')}"
+                    onclick="copyTextFromData(this)">
+                  </button>
+                </p>
+                <p class="mb-1 english">
+                  <span class="badge small rounded-pill ayah-num bg-opacity-75 bg-gradient fw-light">Hilali</span> ${highlight(v.english, searchQuery)}
+                  <button class="btn btn-sm small border-0 icon-copy"
+                    data-copy="${v.english.replace(/"/g, '&quot;')}"
+                    onclick="copyTextFromData(this)">
+                  </button>
+                </p>
+              </div>
+            `).join("")}
           </div>
-        `).join("")}
-  </div>
-</div>
-      `;
+        </div>`;
     }).join("")}`;
-    initializeCopyIcons();
-    initializeAudioIcons();
+  initializeCopyIcons();
+  initializeAudioIcons();
   return;
 }
 // === END OF SEARCH === //
@@ -931,31 +972,31 @@ const rangeMatch = verseParam?.match(/^(\d+):(\d+)-(\d+)$/);
     }
 
 const pad = n => String(n).padStart(3, '0');
-const html = rangeVerses.map(v => `
-  <div class="verse-block p-3 mb-3">
-    <p><a role="button" href="?verse=${v.chapter}:${v.verse}" class="text-decoration-none btn btn-sm ayah-link">${v.chapter}:${v.verse}</a></p>
-    <p class="mb-1 arabic" dir="rtl">
-      ${v.arabic}
-      <button class="btn btn-sm small border-0 icon-copy"
-        data-copy="${v.arabic.replace(/"/g, '&quot;')}"
-        onclick="copyTextFromData(this)">
-      </button>
-    </p>
-    <p class="mb-1 english">
-      <span class="badge small rounded-pill text-bg-success bg-opacity-75 bg-gradient fw-light">Hilali</span> ${v.english}
-      <button class="btn btn-sm small border-0 icon-copy"
-        data-copy="${v.english.replace(/"/g, '&quot;')}"
-        onclick="copyTextFromData(this)">
-      </button>
-    </p>
-    <div class="btn-group mt-3 mb-3">
-     ${renderAudioButton(v.chapter, v.verse)}
-     <button class="btn btn-sm small border-0 icon-copy" data-copy="${location.href}" onclick="copyTextFromData(this)">
-      <span class="ayah-url-copy">Ayah URL</span>
-     </button>
+const html = rangeVerses.map(v => {
+  const shareHTML = generateSocialShareHTML(v.chapter, v.verse);
+  return `
+    <div class="verse-block">
+      <p><a role="button" href="?verse=${v.chapter}:${v.verse}" class="text-decoration-none btn btn-sm ayah-link">${v.chapter}:${v.verse}</a></p>
+      <p class="mb-1 arabic" dir="rtl">
+        ${v.arabic}
+        <button class="btn btn-sm small border-0 icon-copy"
+          data-copy="${v.arabic.replace(/"/g, '&quot;')}"
+          onclick="copyTextFromData(this)">
+        </button>
+      </p>
+      <p class="mb-1 english">
+        <span class="badge small rounded-pill text-bg-success bg-opacity-75 bg-gradient fw-light">Hilali</span> ${v.english}
+        <button class="btn btn-sm small border-0 icon-copy"
+          data-copy="${v.english.replace(/"/g, '&quot;')}"
+          onclick="copyTextFromData(this)">
+        </button>
+      </p>
+      <div class="mt-3 mb-3">
+        <p>${renderAudioButton(v.chapter, v.verse)} ${shareHTML}</p>
+      </div>
     </div>
-  </div>
-`).join("");
+  `;
+}).join("");
 const breadcrumbHtml = `
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -968,13 +1009,14 @@ content.innerHTML = `
   ${breadcrumbHtml}
   <div class="card border-0">
     <div class="card-body">
-      <h4>${name.transliteration || "Surah"} ${chapterId}:${start}-${end}</h4>
+      <h4 class="mb-3">Surah ${name.transliteration || "Surah"} ${chapterId}:${start}-${end}</h4><hr>
       ${html}
     </div>
   </div>
 `;
   initializeCopyIcons(); 
   initializeAudioIcons();
+  initializeSocialPopovers();
   document.title = `Surah ${name.transliteration || ""} ${chapterId}:${start}-${end}`;
   return;
 }
@@ -1790,68 +1832,83 @@ function renderAudioButton(chapter, verse) {
 
 function generateSocialShareHTML(chapter, verse) {
   const shareUrl = `${location.origin}${location.pathname}?verse=${chapter}:${verse}`;
-  const encodedUrl = encodeURIComponent(shareUrl);
   const popoverId = `share-popover-${chapter}-${verse}`;
-  const contentId = `popover-content-${chapter}-${verse}`;
-
-  const popoverContent = `
-    <div id="${contentId}" class="d-flex flex-column gap-1 small">
-      <a href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}" target="_blank" class="text-decoration-none">
-        <i class="bi bi-facebook me-1"></i> Facebook
-      </a>
-      <a href="https://twitter.com/intent/tweet?url=${encodedUrl}" target="_blank" class="text-decoration-none">
-        <i class="bi bi-twitter-x me-1"></i> Twitter
-      </a>
-      <a href="https://www.threads.net/intent/post?url=${encodedUrl}" target="_blank" class="text-decoration-none">
-        <i class="bi bi-threads me-1"></i> Threads
-      </a>
-      <a href="https://t.me/share/url?url=${encodedUrl}" target="_blank" class="text-decoration-none">
-        <i class="bi bi-telegram me-1"></i> Telegram
-      </a>
-      <a href="https://wa.me/?text=${encodedUrl}" target="_blank" class="text-decoration-none">
-        <i class="bi bi-whatsapp me-1"></i> WhatsApp
-      </a>
-      <button class="btn btn-sm btn-light border d-inline-flex align-items-center mt-1 copy-link" data-copy="${shareUrl}" onclick="copyTextFromData(this)">
-        <i class="bi bi-link-45deg me-1"></i> Copy Link
-      </button>
-    </div>
-  `.replace(/"/g, '&quot;').replace(/\n/g, '').trim(); // Escape for attribute
-
   return `
     <button
       id="${popoverId}"
       type="button"
       class="btn btn-sm border-0"
+      data-url="${shareUrl}"
+      data-chapter="${chapter}"
+      data-verse="${verse}"
       data-bs-toggle="popover"
       data-bs-html="true"
-      data-bs-title="Verse ${chapter}:${verse}"
-      data-bs-content="${popoverContent}">
+      data-bs-title="Verse ${chapter}:${verse}">
       <i class="bi bi-share me-1"></i> Share
     </button>
   `;
 }
+
 function initializeSocialPopovers() {
   const triggers = document.querySelectorAll('[data-bs-toggle="popover"]');
 
   triggers.forEach(trigger => {
-    const popover = bootstrap.Popover.getOrCreateInstance(trigger);
+    const chapter = trigger.dataset.chapter;
+    const verse = trigger.dataset.verse;
+    const shareUrl = trigger.dataset.url;
+    const encodedUrl = encodeURIComponent(shareUrl);
 
-    // Handle toggle text
+    const popover = bootstrap.Popover.getOrCreateInstance(trigger, {
+      html: true,
+      title: `Verse ${chapter}:${verse}`,
+      content: "Loading..." // temp placeholder
+    });
+
     trigger.addEventListener('shown.bs.popover', () => {
       trigger.innerHTML = `<i class="bi bi-x-lg me-1"></i> Cancel`;
+
+      // Clone fresh content each time
+      const template = document.getElementById("social-popover-template");
+      const content = template.content.cloneNode(true);
+
+      content.querySelector(".facebook").href = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+      content.querySelector(".twitter").href = `https://twitter.com/intent/tweet?url=${encodedUrl}`;
+      content.querySelector(".threads").href = `https://www.threads.net/intent/post?url=${encodedUrl}`;
+      content.querySelector(".telegram").href = `https://t.me/share/url?url=${encodedUrl}`;
+      content.querySelector(".whatsapp").href = `https://wa.me/?text=${encodedUrl}`;
+      content.querySelector(".read-verse").href = `${shareUrl}`;
+
+      const copyLink = content.querySelector(".copy-url");
+      copyLink.setAttribute("data-copy", shareUrl);
+      copyLink.addEventListener("click", () => {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          copyLink.innerHTML = `<i class="bi bi-check-lg me-1"></i> Copied!`;
+          setTimeout(() => {
+            copyLink.innerHTML = `<i class="bi bi-copy me-1"></i> Copy Link`;
+          }, 1500);
+        });
+      });
+
+      // Replace popover content
+      const popoverId = trigger.getAttribute("aria-describedby");
+      const popoverEl = document.getElementById(popoverId);
+      if (popoverEl) {
+        const body = popoverEl.querySelector(".popover-body");
+        if (body) {
+          body.innerHTML = "";
+          body.appendChild(content);
+        }
+      }
     });
 
     trigger.addEventListener('hidden.bs.popover', () => {
       trigger.innerHTML = `<i class="bi bi-share me-1"></i> Share`;
     });
 
-    // Toggle manually when clicked (Bootstrap popover is toggle by default)
     trigger.addEventListener('click', () => {
-      // Ensure only one popover is open at a time
-      triggers.forEach(btn => {
-        if (btn !== trigger) {
-          const otherPopover = bootstrap.Popover.getInstance(btn);
-          if (otherPopover) otherPopover.hide();
+      triggers.forEach(other => {
+        if (other !== trigger) {
+          bootstrap.Popover.getInstance(other)?.hide();
         }
       });
     });
