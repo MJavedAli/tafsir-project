@@ -1086,7 +1086,8 @@ const translitVerses = parseVerses(translitText);
             onclick="copyTextFromData(this)">
            </button>
           </p>
-         <p>${renderAudioButton(verse.chapter, verse.verse)} ${shareHTML}</p>
+          <p><span id="${placeholderId}"></span></p>
+          <p> ${renderAudioButton(verse.chapter, verse.verse)} ${shareHTML}</p>
           </div>
         </div>
       </div>
@@ -1360,9 +1361,9 @@ return;
   return `
     <div class="verse-block p-0 mb-0 mt-3">
       ${basmalahHTML} 
-      <div class="d-flex justify-content-between">
-      <p><a role="button" href="?verse=${v.chapter}:${v.verse}" class="text-decoration-none btn btn-sm ayah-link">         ${v.chapter}:${v.verse}</a>
-      </p>
+      <div class="d-flex justify-content-start">
+      <p><a role="button" href="?verse=${v.chapter}:${v.verse}" class="text-decoration-none btn btn-sm ayah-link">         ${v.chapter}:${v.verse}</a> 
+      </p>  
       </div>
       <p class="mb-3 arabic" dir="rtl">${v.arabic}
            <button class="btn btn-sm small border-0 icon-copy"
@@ -1379,9 +1380,9 @@ return;
            </button>
       </p>
         <div class="mt-3 mb-3">          
-            <span id="${placeholderId}"></span>
-         </div>
-        <p> ${renderAudioButton(v.chapter, v.verse)} ${shareHTML}</p>
+         <span id="${placeholderId}"></span>
+        </div>
+        <p>${renderAudioButton(v.chapter, v.verse)} ${shareHTML}</p>
     </div>
   `;
 }).join("");
@@ -1412,7 +1413,7 @@ let paginationHtml = `
           initializeSocialPopovers();
 
 const svgContainer = document.getElementById(`surah-svg-${chapterId}`);
-fetch(`/quran/assets/svg/${chapterId}.svg`)
+fetch(`assets/svg/${chapterId}.svg`)
   .then(res => {
     if (!res.ok) throw new Error(`Failed to load SVG ${chapterId}`);
     return res.text();
@@ -1473,7 +1474,7 @@ chapters.forEach(ch => {
   `;
   content.appendChild(col);
   const svgContainer = col.querySelector(`#surah-svg-${ch}`);
-  fetch(`/quran/assets/svg/${ch}.svg`)
+  fetch(`assets/svg/${ch}.svg`)
     .then(res => {
       if (!res.ok) throw new Error(`Failed to load SVG ${ch}`);
       return res.text();
@@ -1494,7 +1495,7 @@ chapters.forEach(ch => {
     })
     .catch(err => {
       console.error("Error loading Quran text:", err);
-      content.innerHTML = `<p>Error loading Quran text files.</p>`;
+      content.innerHTML = `<p>Error loading Quran</p>`;
     });
 // === END QURAN surahs, verses, etc === //
 
